@@ -42,7 +42,7 @@ func BenchmarkEncryption(b *testing.B) {
 	seed := make([]byte, 32)
 	io.ReadFull(rand.Reader, seed)
 
-	sender := NewQPP(seed, 8, 8)
+	sender := NewQPP(seed, 64, 8)
 	msg := []byte("hello world")
 	b.ResetTimer()
 	b.SetBytes(int64(len(msg)))
