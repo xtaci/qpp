@@ -16,12 +16,10 @@ type QuantumPermutationPad struct {
 	pads  [][]byte // encryption
 	rpads [][]byte // decryption
 
-	numPads      uint16     // number of pads
-	qubits       uint8      // number of quantum bits
-	bytesEncoded uint64     // number of bytes encoded
-	bytesDecoded uint64     // number of bytes decoded
-	encRand      *rand.Rand // random source for pattern selection
-	decRand      *rand.Rand // random source for pattern selection
+	numPads uint16     // number of pads
+	qubits  uint8      // number of quantum bits
+	encRand *rand.Rand // random source for pattern selection
+	decRand *rand.Rand // random source for pattern selection
 }
 
 func NewQPP(seed []byte, numPads uint16, qubits uint8) *QuantumPermutationPad {
@@ -64,7 +62,6 @@ func (qpp *QuantumPermutationPad) Encrypt(data []byte) {
 		}
 	default:
 	}
-	qpp.bytesEncoded += uint64(len(data))
 }
 
 func (qpp *QuantumPermutationPad) Decrypt(data []byte) {
@@ -77,7 +74,6 @@ func (qpp *QuantumPermutationPad) Decrypt(data []byte) {
 		}
 	default:
 	}
-	qpp.bytesDecoded += uint64(len(data))
 }
 
 func fill(pad []byte) {
