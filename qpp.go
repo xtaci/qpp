@@ -85,13 +85,13 @@ func (qpp *QuantumPermutationPad) Decrypt(data []byte) {
 }
 
 func fill(pad []byte) {
-	for i := 0; i < 256; i++ {
+	for i := 0; i < len(pad); i++ {
 		pad[i] = byte(i)
 	}
 }
 
 func reverse(pad []byte, rpad []byte) {
-	for i := 0; i < 256; i++ {
+	for i := 0; i < len(pad); i++ {
 		rpad[pad[i]] = byte(i)
 	}
 }
