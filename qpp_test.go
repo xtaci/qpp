@@ -26,11 +26,13 @@ func TestEncryption(t *testing.T) {
 	seed := make([]byte, 32)
 	io.ReadFull(rand.Reader, seed)
 
-	sender := NewQPP(seed, 8, 8)
-	receiver := NewQPP(seed, 8, 8)
+	sender := NewQPP(seed, 1024, 8)
+	receiver := NewQPP(seed, 1024, 8)
 
-	original := []byte("hello world")
-	msg := []byte("hello world")
+	original := make([]byte, 65536)
+	io.ReadFull(rand.Reader, original)
+	msg := make([]byte, len(original))
+	copy(msg, original)
 	sender.Encrypt(msg)
 	assert.NotEqual(t, original, msg, "not encrypted")
 	receiver.Decrypt(msg)
