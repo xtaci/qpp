@@ -45,17 +45,19 @@ func TestEncryptionMixedPRNG(t *testing.T) {
 	seed := make([]byte, 32)
 	io.ReadFull(rand.Reader, seed)
 
-	sender := NewQPP(seed, 1024, 8)
-	receiver := NewQPP(seed, 1024, 8)
+	qpp := NewQPP(seed, 1024, 8)
 
 	original := make([]byte, 65536)
 	io.ReadFull(rand.Reader, original)
 	msg := make([]byte, len(original))
 	copy(msg, original)
-	sender.Encrypt(msg)
+
+	rand_enc := qpp.CreatePRNG(seed)
+	qpp.EncryptWithPRNG(msg, rand_enc)
 	assert.NotEqual(t, original, msg, "not encrypted")
-	rand := receiver.CreatePRNG(seed)
-	receiver.DecryptWithPRNG(msg, rand)
+
+	rand_dec := qpp.CreatePRNG(seed)
+	qpp.DecryptWithPRNG(msg, rand_dec)
 	t.Log(msg)
 	assert.Equal(t, original, msg, "not equal")
 }
