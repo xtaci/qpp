@@ -160,7 +160,7 @@ func shuffle(seed []byte, pad []byte, padID uint16) {
 	block, _ := aes.NewCipher(aeskey)
 	for i := len(pad) - 1; i > 0; i-- {
 		block.Encrypt(sum, sum)
-		j := binary.LittleEndian.Uint64(sum) % uint64(i)
+		j := binary.LittleEndian.Uint64(sum) % uint64(i+1)
 		pad[i], pad[j] = pad[j], pad[i]
 	}
 }
