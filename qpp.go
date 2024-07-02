@@ -1,6 +1,7 @@
 package qpp
 
 import (
+	"crypto/aes"
 	"crypto/hmac"
 	"crypto/sha1"
 	"crypto/sha256"
@@ -154,10 +155,12 @@ func shuffle(seed []byte, pad []byte, padID uint16) {
 	mac.Write([]byte(message))
 	sum := mac.Sum(nil)
 
-	// Condense entropy to 8 bytes
-	dk := pbkdf2.Key(sum, []byte(SHUFFLE_SALT), PBKDF2_LOOPS, 8, sha1.New)
-	source := rand.NewSource(int64(binary.LittleEndian.Uint64(dk)))
-	rand.New(source).Shuffle(len(pad), func(i, j int) {
+	// expand seed to 32-bytes for AES-based PRNG
+	aeskey := pbkdf2.Key(seed, []byte(SHUFFLE_SALT), PBKDF2_LOOPS, 32, sha1.New)
+	block, _ := aes.NewCipher(aeskey)
+	for i := len(pad) - 1; i > 0; i-- {
+		block.Encrypt(sum, sum)
+		j := binary.LittleEndian.Uint64(sum) % uint64(i)
 		pad[i], pad[j] = pad[j], pad[i]
-	})
+	}
 }
