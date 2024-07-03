@@ -62,7 +62,7 @@ func NewQPP(seed []byte, numPads uint16, qubits uint8) *QuantumPermutationPad {
 	}
 
 	qpp.encRand = qpp.CreatePRNG(seed) // Create default PRNG for encryption
-	qpp.decRand = qpp.CreatePRNG(seed)
+	qpp.decRand = qpp.CreatePRNG(seed) // Create default PRNG for decryption
 
 	return qpp
 }
@@ -79,6 +79,7 @@ func (qpp *QuantumPermutationPad) Encrypt(data []byte) {
 			data[i] = pad[data[i]^byte(rand&0xFF)] // Apply the permutation to the data byte
 		}
 	default:
+		// Handle other cases if needed
 	}
 }
 
@@ -88,25 +89,25 @@ func (qpp *QuantumPermutationPad) Decrypt(data []byte) {
 	switch qpp.qubits {
 	case NATIVE_BYTE_LENGTH:
 		for i := 0; i < len(data); i++ {
-			rand := qpp.decRand.Uint32()
-			index := rand % uint32(qpp.numPads)
-			rpad := qpp.rpads[index]
-			data[i] = rpad[data[i]] ^ byte(rand&0xFF)
+			rand := qpp.decRand.Uint32()              // Generate a pseudo-random number
+			index := rand % uint32(qpp.numPads)       // Select a reverse permutation matrix index
+			rpad := qpp.rpads[index]                  // Retrieve the reverse permutation matrix
+			data[i] = rpad[data[i]] ^ byte(rand&0xFF) // Restore the original byte
 		}
 	default:
+		// Handle other cases if needed
 	}
 }
 
 // CreatePRNG creates a deterministic pseudo-random number generator based on the provided seed
 // It uses HMAC and PBKDF2 to derive a random seed for the PRNG
 func (qpp *QuantumPermutationPad) CreatePRNG(seed []byte) *rand.Rand {
-	// condense entropy from seed to 8 bytes
 	mac := hmac.New(sha256.New, seed)
 	mac.Write([]byte(PM_SELECTOR_IDENTIFIER))
 	sum := mac.Sum(nil)
-	dk := pbkdf2.Key(sum, []byte(PRNG_SALT), PBKDF2_LOOPS, 8, sha1.New)
-	source := rand.NewSource(int64(binary.LittleEndian.Uint64(dk)))
-	return rand.New(source)
+	dk := pbkdf2.Key(sum, []byte(PRNG_SALT), PBKDF2_LOOPS, 8, sha1.New) // Derive a key for PRNG
+	source := rand.NewSource(int64(binary.LittleEndian.Uint64(dk)))     // Create random source
+	return rand.New(source)                                             // Create and return PRNG
 }
 
 // EncryptWithPRNG encrypts the data using the Quantum Permutation Pad with a custom PRNG
@@ -121,6 +122,7 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *rand.Rand) 
 			data[i] = pad[data[i]^byte(rand&0xFF)]
 		}
 	default:
+		// Handle other cases if needed
 	}
 }
 
@@ -136,10 +138,12 @@ func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *rand.Rand) 
 			data[i] = rpad[data[i]] ^ byte(rand&0xFF)
 		}
 	default:
+		// Handle other cases if needed
 	}
 }
 
 // QPPMinimumSeedLength calculates the length required for the seed based on the number of qubits
+// This ensures that the seed has sufficient entropy for the required permutations
 func QPPMinimumSeedLength(qubits uint8) int {
 	perms := big.NewInt(1 << qubits)
 	for i := 1<<qubits - 1; i > 0; i-- {
@@ -153,6 +157,7 @@ func QPPMinimumSeedLength(qubits uint8) int {
 }
 
 // QPPMinimumPads calculates the minimum number of pads required based on the number of qubits
+// This is derived from the minimum seed length needed for the permutations
 func QPPMinimumPads(qubits uint8) int {
 	byteLen := QPPMinimumSeedLength(qubits)
 	minpads := byteLen / 32
@@ -180,21 +185,22 @@ func reverse(pad []byte, rpad []byte) {
 	}
 }
 
-// seedToChunks converts the seed into 32bytes-chunks based on the number of qubits
+// seedToChunks converts the seed into 32-byte chunks based on the number of qubits
+// This ensures that the seed is sufficiently long and has the required entropy
 func seedToChunks(seed []byte, qubits uint8) [][]byte {
-	// keep the seed length to atleast 32bytes
+	// Ensure the seed length is at least 32 bytes
 	if len(seed) < 32 {
 		seed = pbkdf2.Key(seed, []byte(CHUNK_DERIVE_SALT), PBKDF2_LOOPS, 32, sha1.New)
 	}
 
-	// in 8bit qubits, it requires 1684 bits or 211 bytes of seed to attain full permutation space
+	// Calculate the required byte length for full permutation space
 	byteLength := QPPMinimumSeedLength(qubits)
 	chunks := make([][]byte, byteLength/32)
 	for i := 0; i < len(chunks); i++ {
 		chunks[i] = make([]byte, 32)
 	}
 
-	// equally split into overlapping chunks
+	// Split the seed into overlapping chunks
 	seedIdx := 0
 	for i := 0; i < len(chunks); i++ {
 		for j := 0; j < 32; j++ {
@@ -202,7 +208,7 @@ func seedToChunks(seed []byte, qubits uint8) [][]byte {
 			seedIdx++
 		}
 
-		// key expansion
+		// Perform key expansion
 		derived := pbkdf2.Key(chunks[i], []byte(CHUNK_DERIVE_SALT), CHUNK_DERIVE_LOOPS, len(chunks[i]), sha1.New)
 		copy(chunks[i], derived)
 	}
@@ -218,7 +224,7 @@ func shuffle(chunk []byte, qubits uint8, pad []byte, padID uint16) {
 	mac.Write([]byte(message))
 	sum := mac.Sum(nil)
 
-	// expand seed to 32-bytes for AES-based PRNG
+	// Expand the seed to 32 bytes for AES-based PRNG
 	aeskey := pbkdf2.Key(chunk, []byte(SHUFFLE_SALT), PBKDF2_LOOPS, 32, sha1.New)
 	block, _ := aes.NewCipher(aeskey)
 	for i := len(pad) - 1; i > 0; i-- {
