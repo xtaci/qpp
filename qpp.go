@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"fmt"
+	"math/big"
 	"math/rand"
 
 	"golang.org/x/crypto/pbkdf2"
@@ -20,6 +21,8 @@ const (
 	PRNG_SALT              = "___QUANTUM_PERMUTATION_PAD_PRNG_SALT___"
 	NATIVE_BYTE_LENGTH     = 8   // Bit length for native byte
 	PBKDF2_LOOPS           = 128 // Number of iterations for PBKDF2
+	CHUNK_DERIVE_SALT      = "___QUANTUM_PERMUTATION_PAD_SEED_DERIVE___"
+	CHUNK_DERIVE_LOOPS     = 1024
 )
 
 // QuantumPermutationPad represents the encryption/decryption structure using quantum permutation pads
@@ -44,13 +47,18 @@ func NewQPP(seed []byte, numPads uint16, qubits uint8) *QuantumPermutationPad {
 	qpp.pads = make([][]byte, numPads)
 	qpp.rpads = make([][]byte, numPads)
 
+	chunks := seedToChunks(seed, qubits)
 	// Initialize and shuffle pads to create permutation matrices
-	for i := uint16(0); i < numPads; i++ {
+	for i := 0; i < int(numPads); i++ {
 		qpp.pads[i] = make([]byte, 1<<qubits)
 		qpp.rpads[i] = make([]byte, 1<<qubits)
-		fill(qpp.pads[i])                  // Fill pad with sequential byte values
-		shuffle(seed, qpp.pads[i], i)      // Shuffle pad to create a unique permutation matrix
-		reverse(qpp.pads[i], qpp.rpads[i]) // Create the reverse permutation matrix for decryption
+
+		// Fill pad with sequential byte values
+		fill(qpp.pads[i])
+		// Shuffle pad to create a unique permutation matrix
+		shuffle(chunks[i%len(chunks)], qubits, qpp.pads[i], uint16(i))
+		// Create the reverse permutation matrix for decryption
+		reverse(qpp.pads[i], qpp.rpads[i])
 	}
 
 	qpp.encRand = qpp.CreatePRNG(seed) // Create default PRNG for encryption
@@ -131,6 +139,31 @@ func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *rand.Rand) 
 	}
 }
 
+// QPPMinimumSeedLength calculates the length required for the seed based on the number of qubits
+func QPPMinimumSeedLength(qubits uint8) int {
+	perms := big.NewInt(1 << qubits)
+	for i := 1<<qubits - 1; i > 0; i-- {
+		perms.Mul(perms, big.NewInt(int64(i)))
+	}
+	byteLen := perms.BitLen() / 8
+	if byteLen == 0 {
+		byteLen = 1
+	}
+	return byteLen
+}
+
+// QPPMinimumPads calculates the minimum number of pads required based on the number of qubits
+func QPPMinimumPads(qubits uint8) int {
+	byteLen := QPPMinimumSeedLength(qubits)
+	minpads := byteLen / 32
+	left := byteLen % 32
+	if left > 0 {
+		minpads += 1
+	}
+
+	return minpads
+}
+
 // fill initializes the pad with sequential byte values
 // This sets up a standard permutation matrix before it is shuffled
 func fill(pad []byte) {
@@ -147,16 +180,46 @@ func reverse(pad []byte, rpad []byte) {
 	}
 }
 
+// seedToChunks converts the seed into 32bytes-chunks based on the number of qubits
+func seedToChunks(seed []byte, qubits uint8) [][]byte {
+	// keep the seed length to atleast 32bytes
+	if len(seed) < 32 {
+		seed = pbkdf2.Key(seed, []byte(CHUNK_DERIVE_SALT), PBKDF2_LOOPS, 32, sha1.New)
+	}
+
+	// in 8bit qubits, it requires 1684 bits or 211 bytes of seed to attain full permutation space
+	byteLength := QPPMinimumSeedLength(qubits)
+	chunks := make([][]byte, byteLength/32)
+	for i := 0; i < len(chunks); i++ {
+		chunks[i] = make([]byte, 32)
+	}
+
+	// equally split into overlapping chunks
+	seedIdx := 0
+	for i := 0; i < len(chunks); i++ {
+		for j := 0; j < 32; j++ {
+			chunks[i][j] = seed[seedIdx%len(seed)]
+			seedIdx++
+		}
+
+		// key expansion
+		derived := pbkdf2.Key(chunks[i], []byte(CHUNK_DERIVE_SALT), CHUNK_DERIVE_LOOPS, len(chunks[i]), sha1.New)
+		copy(chunks[i], derived)
+	}
+
+	return chunks
+}
+
 // shuffle shuffles the pad based on the seed and pad identifier to create a permutation matrix
 // It uses HMAC and PBKDF2 to derive a unique shuffle pattern from the seed and pad ID
-func shuffle(seed []byte, pad []byte, padID uint16) {
+func shuffle(chunk []byte, qubits uint8, pad []byte, padID uint16) {
 	message := fmt.Sprintf(PAD_IDENTIFIER, padID)
-	mac := hmac.New(sha256.New, seed)
+	mac := hmac.New(sha256.New, chunk)
 	mac.Write([]byte(message))
 	sum := mac.Sum(nil)
 
 	// expand seed to 32-bytes for AES-based PRNG
-	aeskey := pbkdf2.Key(seed, []byte(SHUFFLE_SALT), PBKDF2_LOOPS, 32, sha1.New)
+	aeskey := pbkdf2.Key(chunk, []byte(SHUFFLE_SALT), PBKDF2_LOOPS, 32, sha1.New)
 	block, _ := aes.NewCipher(aeskey)
 	for i := len(pad) - 1; i > 0; i-- {
 		block.Encrypt(sum, sum)

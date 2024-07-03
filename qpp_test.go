@@ -37,7 +37,6 @@ func TestEncryption(t *testing.T) {
 	sender.Encrypt(msg)
 	assert.NotEqual(t, original, msg, "not encrypted")
 	receiver.Decrypt(msg)
-	t.Log(msg)
 	assert.Equal(t, original, msg, "not equal")
 }
 
@@ -54,7 +53,6 @@ func TestEncryption2(t *testing.T) {
 	qpp.Encrypt(msg)
 	assert.NotEqual(t, original, msg, "not encrypted")
 	qpp.Decrypt(msg)
-	t.Log(msg)
 	assert.Equal(t, original, msg, "not equal")
 }
 
@@ -75,8 +73,21 @@ func TestEncryptionMixedPRNG(t *testing.T) {
 
 	rand_dec := qpp.CreatePRNG(seed)
 	qpp.DecryptWithPRNG(msg, rand_dec)
-	t.Log(msg)
 	assert.Equal(t, original, msg, "not equal")
+}
+
+func TestSeedToChunk(t *testing.T) {
+	seed := "hello quantum world, hello quantum world, hello quantum world"
+	t.Log("long seed, 8 qubit:", seedToChunks([]byte(seed), 8))
+	shortSeed := "hello"
+	t.Log("short seed, 8 qubit", seedToChunks([]byte(shortSeed), 8))
+	t.Log("chunk size:", len(seedToChunks([]byte(seed), 8)))
+}
+
+func TestQPPMinimumSeedLength(t *testing.T) {
+	for i := 1; i < 16; i++ {
+		t.Log(i, "qubit -> minimum seed length(bytes):", QPPMinimumSeedLength(uint8(i)), "Min Pads:", QPPMinimumPads(uint8(i)))
+	}
 }
 
 func BenchmarkEncryption(b *testing.B) {
