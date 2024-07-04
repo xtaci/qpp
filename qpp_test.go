@@ -95,7 +95,9 @@ func BenchmarkEncryption(b *testing.B) {
 	io.ReadFull(rand.Reader, seed)
 
 	sender := NewQPP(seed, 64, 8)
-	msg := []byte("hello world")
+	msg := make([]byte, 512)
+	io.ReadFull(rand.Reader, msg)
+
 	b.ResetTimer()
 	b.SetBytes(int64(len(msg)))
 	for i := 0; i < b.N; i++ {
