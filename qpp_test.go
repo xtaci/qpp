@@ -10,15 +10,21 @@ import (
 )
 
 func TestPads(t *testing.T) {
+	numPads := uint16(8)
 	seed := make([]byte, 32)
 	io.ReadFull(rand.Reader, seed)
-	qpp := NewQPP(seed, 8, 8)
-	t.Log(qpp.pads[0])
-	t.Log(qpp.rpads[0])
+	qpp := NewQPP(seed, numPads, 8)
+	matrixBytes := 1 << 8
+	t.Log(qpp.pads)
+	t.Log(qpp.rpads)
 	assert.Equal(t, len(qpp.pads), len(qpp.rpads), "pads not equal")
-	for i := 0; i < len(qpp.pads); i++ {
-		for j := 0; j < len(qpp.pads[i]); j++ {
-			assert.Equal(t, qpp.rpads[i][qpp.pads[i][j]], byte(j), "not reservable")
+
+	for i := 0; i < int(numPads); i++ {
+		pad := qpp.pads[i*matrixBytes : (i+1)*matrixBytes]
+		rpad := qpp.rpads[i*matrixBytes : (i+1)*matrixBytes]
+
+		for j := 0; j < matrixBytes; j++ {
+			assert.Equal(t, rpad[pad[j]], byte(j), "not reservable")
 		}
 	}
 }
