@@ -8,7 +8,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math/big"
-	"math/rand/v2"
+	"math/rand"
 	"unsafe"
 
 	"golang.org/x/crypto/pbkdf2"
@@ -25,12 +25,6 @@ const (
 	CHUNK_DERIVE_SALT      = "___QUANTUM_PERMUTATION_PAD_SEED_DERIVE___"
 	CHUNK_DERIVE_LOOPS     = 1024
 )
-
-type Source uint64
-
-func (s Source) Uint64() uint64 {
-	return uint64(s)
-}
 
 // QuantumPermutationPad represents the encryption/decryption structure using quantum permutation pads
 // QPP is a cryptographic technique that leverages quantum-inspired permutation matrices to provide secure encryption.
@@ -99,9 +93,8 @@ func (qpp *QuantumPermutationPad) CreatePRNG(seed []byte) *rand.Rand {
 	mac.Write([]byte(PM_SELECTOR_IDENTIFIER))
 	sum := mac.Sum(nil)
 	dk := pbkdf2.Key(sum, []byte(PRNG_SALT), PBKDF2_LOOPS, 8, sha1.New) // Derive a key for PRNG
-	//source := rand.NewSource(int64(binary.LittleEndian.Uint64(dk)))     // Create random source
-	//return rand.New(source) // Create and return PRNG
-	return rand.New(Source(binary.LittleEndian.Uint64(dk)))
+	source := rand.NewSource(int64(binary.LittleEndian.Uint64(dk)))     // Create random source
+	return rand.New(source)                                             // Create and return PRNG
 }
 
 // EncryptWithPRNG encrypts the data using the Quantum Permutation Pad with a custom PRNG
@@ -112,7 +105,7 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *rand.Rand) 
 		for i := 0; i < len(data); i++ {
 			r := uint16(rand.Uint32())                                           // Generate a pseudo-random number
 			index := r % qpp.numPads                                             // Select a permutation matrix index
-			offset := qpp.padsPtr + uintptr(index)<<8 + uintptr(data[i]^byte(r)) // Calculate the offset for the
+			offset := qpp.padsPtr + uintptr(index)<<8 + uintptr(data[i]^byte(r)) // Calculate the offset
 			data[i] = *(*byte)(unsafe.Pointer(offset))                           // Apply the permutation to the data byte
 		}
 	default:
@@ -128,7 +121,7 @@ func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *rand.Rand) 
 		for i := 0; i < len(data); i++ {
 			r := uint16(rand.Uint32())                                    // Generate a pseudo-random number
 			index := r % qpp.numPads                                      // Select a permutation matrix index
-			offset := qpp.rpadsPtr + uintptr(index)<<8 + uintptr(data[i]) // Calculate the offset for the
+			offset := qpp.rpadsPtr + uintptr(index)<<8 + uintptr(data[i]) // Calculate the offset
 			data[i] = *(*byte)(unsafe.Pointer(offset)) ^ byte(r)          // Apply the permutation to the data byte
 		}
 	default:

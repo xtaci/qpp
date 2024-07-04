@@ -3,8 +3,10 @@ package qpp
 import (
 	"crypto/rand"
 	"io"
-	mathrand "math/rand/v2"
 	"testing"
+
+	mathrand "math/rand"
+	mathrand2 "math/rand/v2"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -112,9 +114,26 @@ func BenchmarkEncryption(b *testing.B) {
 }
 
 func BenchmarkRand(b *testing.B) {
-	encRand := mathrand.New(Source(0xff00ff00))
+	encSource := mathrand.NewSource(0xff00ff00)
+	encRand := mathrand.New(encSource)
 	b.SetBytes(1)
 	for i := 0; i < b.N; i++ {
+		_ = encRand.Uint32()
+	}
+}
+
+type randSource uint64
+
+func (rs randSource) Uint64() uint64 {
+	return uint64(rs)
+}
+
+func BenchmarkRandV2(b *testing.B) {
+	encRand := mathrand2.New(mathrand2.NewPCG(0xff00, 0x00ff))
+	//encRand := mathrand2.New(randSource(0xff00ff00))
+	b.SetBytes(1)
+	for i := 0; i < b.N; i++ {
+		//println(encRand.Uint32())
 		_ = encRand.Uint32()
 	}
 }
