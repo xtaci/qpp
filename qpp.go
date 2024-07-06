@@ -216,7 +216,8 @@ func shuffle(chunk []byte, qubits uint8, pad []byte, padID uint16) {
 	block, _ := aes.NewCipher(aeskey)
 	for i := len(pad) - 1; i > 0; i-- {
 		block.Encrypt(sum, sum)
-		j := binary.LittleEndian.Uint64(sum) % uint64(i+1)
+		bigrand := new(big.Int).SetBytes(sum)
+		j := bigrand.Mod(bigrand, big.NewInt(int64(i+1))).Uint64()
 		pad[i], pad[j] = pad[j], pad[i]
 	}
 }
