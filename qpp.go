@@ -2,6 +2,7 @@ package qpp
 
 import (
 	"crypto/aes"
+	"crypto/cipher"
 	"crypto/hmac"
 	"crypto/sha1"
 	"crypto/sha256"
@@ -55,6 +56,14 @@ func NewQPP(seed []byte, numPads uint16, qubits uint8) *QuantumPermutationPad {
 	qpp.rpadsPtr = uintptr(unsafe.Pointer(unsafe.SliceData(qpp.rpads)))
 
 	chunks := seedToChunks(seed, qubits)
+	// creat AES-256 blocks to generate random number for shuffling
+	var blocks []cipher.Block
+	for i := range chunks {
+		aeskey := pbkdf2.Key(chunks[i], []byte(SHUFFLE_SALT), PBKDF2_LOOPS, 32, sha1.New)
+		block, _ := aes.NewCipher(aeskey)
+		blocks = append(blocks, block)
+	}
+
 	// Initialize and shuffle pads to create permutation matrices
 	for i := 0; i < int(numPads); i++ {
 		pad := qpp.pads[i*matrixBytes : (i+1)*matrixBytes]
@@ -63,7 +72,7 @@ func NewQPP(seed []byte, numPads uint16, qubits uint8) *QuantumPermutationPad {
 		// Fill pad with sequential byte values
 		fill(pad)
 		// Shuffle pad to create a unique permutation matrix
-		shuffle(chunks[i%len(chunks)], qubits, pad, uint16(i))
+		shuffle(chunks[i%len(chunks)], qubits, pad, uint16(i), blocks)
 		// Create the reverse permutation matrix for decryption
 		reverse(pad, rpad)
 	}
@@ -205,18 +214,21 @@ func seedToChunks(seed []byte, qubits uint8) [][]byte {
 
 // shuffle shuffles the pad based on the seed and pad identifier to create a permutation matrix
 // It uses HMAC and PBKDF2 to derive a unique shuffle pattern from the seed and pad ID
-func shuffle(chunk []byte, qubits uint8, pad []byte, padID uint16) {
+func shuffle(chunk []byte, qubits uint8, pad []byte, padID uint16, blocks []cipher.Block) {
+	// use selected chunk based on pad ID to hmac the PAD_IDENTIFIER
 	message := fmt.Sprintf(PAD_IDENTIFIER, padID)
 	mac := hmac.New(sha256.New, chunk)
 	mac.Write([]byte(message))
 	sum := mac.Sum(nil)
 
-	// Expand the seed to 32 bytes for AES-based PRNG
-	aeskey := pbkdf2.Key(chunk, []byte(SHUFFLE_SALT), PBKDF2_LOOPS, 32, sha1.New)
-	block, _ := aes.NewCipher(aeskey)
 	for i := len(pad) - 1; i > 0; i-- {
-		block.Encrypt(sum, sum)
+		// use all the entropy from the seed to generate a random number
+		for j := 0; j < len(blocks); j++ {
+			block := blocks[j%len(blocks)]
+			block.Encrypt(sum, sum)
+		}
 		bigrand := new(big.Int).SetBytes(sum)
+
 		j := bigrand.Mod(bigrand, big.NewInt(int64(i+1))).Uint64()
 		pad[i], pad[j] = pad[j], pad[i]
 	}
