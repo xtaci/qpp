@@ -98,7 +98,7 @@ func TestQPPMinimumSeedLength(t *testing.T) {
 	}
 }
 
-func BenchmarkEncryption(b *testing.B) {
+func BenchmarkQPP(b *testing.B) {
 	seed := make([]byte, 32)
 	io.ReadFull(rand.Reader, seed)
 
