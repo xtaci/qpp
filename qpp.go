@@ -129,7 +129,7 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 	case NATIVE_BYTE_LENGTH:
 		for i := 0; i < len(data); i++ {
 			// switch to another permutation pad for every 256 bytes
-			if count%PAD_SWITCH == 0 {
+			if count == PAD_SWITCH {
 				index = uint16(r) % qpp.numPads
 				count = 0
 			}
@@ -143,7 +143,7 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 
 		// set back r & count
 		rand.seed64 = uint64(r)
-		rand.count += uint8(len(data) % PAD_SWITCH)
+		rand.count = uint8((int(rand.count) + len(data)) % PAD_SWITCH)
 	default:
 		// Handle other cases if needed
 	}
@@ -160,7 +160,7 @@ func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *Rand) {
 	switch qpp.qubits {
 	case NATIVE_BYTE_LENGTH:
 		for i := 0; i < len(data); i++ {
-			if count%PAD_SWITCH == 0 {
+			if count == PAD_SWITCH {
 				index = uint16(r) % qpp.numPads
 				count = 0
 			}
@@ -173,7 +173,7 @@ func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *Rand) {
 
 		// set back r & count
 		rand.seed64 = uint64(r)
-		rand.count += uint8(len(data) % PAD_SWITCH)
+		rand.count = uint8((int(rand.count) + len(data)) % PAD_SWITCH)
 	default:
 		// Handle other cases if needed
 	}
