@@ -9,7 +9,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math/big"
-	"math/rand"
 	"unsafe"
 
 	"golang.org/x/crypto/pbkdf2"
@@ -25,7 +24,15 @@ const (
 	PBKDF2_LOOPS           = 128 // Number of iterations for PBKDF2
 	CHUNK_DERIVE_SALT      = "___QUANTUM_PERMUTATION_PAD_SEED_DERIVE___"
 	CHUNK_DERIVE_LOOPS     = 1024
+	MAGIC                  = 0x1A2B3C4D5E6F7890
+	PAD_SWITCH             = 8 // switch pad for every PAD_SWITCH bytes
 )
+
+// Rand is a stateful random number generator
+type Rand struct {
+	seed64 uint64
+	count  uint8
+}
 
 // QuantumPermutationPad represents the encryption/decryption structure using quantum permutation pads
 // QPP is a cryptographic technique that leverages quantum-inspired permutation matrices to provide secure encryption.
@@ -35,10 +42,10 @@ type QuantumPermutationPad struct {
 	padsPtr  uintptr // raw pointer to encryption pads
 	rpadsPtr uintptr // raw pointer to encryption pads
 
-	numPads uint16     // Number of pads (permutation matrices)
-	qubits  uint8      // Number of quantum bits, determines the size of each pad
-	encRand *rand.Rand // Default random source for encryption pad selection
-	decRand *rand.Rand // Default random source for decryption pad selection
+	numPads uint16 // Number of pads (permutation matrices)
+	qubits  uint8  // Number of quantum bits, determines the size of each pad
+	encRand *Rand  // Default random source for encryption pad selection
+	decRand *Rand  // Default random source for decryption pad selection
 }
 
 // NewQPP creates a new Quantum Permutation Pad instance with the provided seed, number of pads, and qubits
@@ -97,42 +104,76 @@ func (qpp *QuantumPermutationPad) Decrypt(data []byte) {
 
 // CreatePRNG creates a deterministic pseudo-random number generator based on the provided seed
 // It uses HMAC and PBKDF2 to derive a random seed for the PRNG
-func (qpp *QuantumPermutationPad) CreatePRNG(seed []byte) *rand.Rand {
+func (qpp *QuantumPermutationPad) CreatePRNG(seed []byte) *Rand {
 	mac := hmac.New(sha256.New, seed)
 	mac.Write([]byte(PM_SELECTOR_IDENTIFIER))
 	sum := mac.Sum(nil)
 	dk := pbkdf2.Key(sum, []byte(PRNG_SALT), PBKDF2_LOOPS, 8, sha1.New) // Derive a key for PRNG
-	source := rand.NewSource(int64(binary.LittleEndian.Uint64(dk)))     // Create random source
-	return rand.New(source)                                             // Create and return PRNG
+	seed64 := binary.LittleEndian.Uint64(dk)
+	if seed64 == 0 {
+		seed64 = MAGIC
+	}
+	return &Rand{seed64: seed64} // Create and return PRNG
 }
 
 // EncryptWithPRNG encrypts the data using the Quantum Permutation Pad with a custom PRNG
 // This function shares the same permutation matrices
-func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *rand.Rand) {
+func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
+	// initial r, index, count
+	r := uint32(rand.seed64)
+	index := uint16(r) % qpp.numPads // Select a permutation matrix index
+	count := rand.count
+
+	// loop
 	switch qpp.qubits {
 	case NATIVE_BYTE_LENGTH:
 		for i := 0; i < len(data); i++ {
-			r := uint16(rand.Uint32())                                           // Generate a pseudo-random number
-			index := r % qpp.numPads                                             // Select a permutation matrix index
+			// switch to another permutation pad for every 256 bytes
+			if count%PAD_SWITCH == 0 {
+				index = uint16(r) % qpp.numPads
+				count = 0
+			}
+
 			offset := qpp.padsPtr + uintptr(index)<<8 + uintptr(data[i]^byte(r)) // Calculate the offset
 			data[i] = *(*byte)(unsafe.Pointer(offset))                           // Apply the permutation to the data byte
+
+			count++
+			r = xorshift32(r)
 		}
+
+		// set back r & count
+		rand.seed64 = uint64(r)
+		rand.count += uint8(len(data) % PAD_SWITCH)
 	default:
 		// Handle other cases if needed
 	}
+
 }
 
 // DecryptWithPRNG decrypts the data using the Quantum Permutation Pad with a custom PRNG
 // This function shares the same permutation matrices
-func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *rand.Rand) {
+func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *Rand) {
+	r := uint32(rand.seed64)
+	index := uint16(r) % qpp.numPads // Select a permutation matrix index
+	count := rand.count
+
 	switch qpp.qubits {
 	case NATIVE_BYTE_LENGTH:
 		for i := 0; i < len(data); i++ {
-			r := uint16(rand.Uint32())                                    // Generate a pseudo-random number
-			index := r % qpp.numPads                                      // Select a permutation matrix index
+			if count%PAD_SWITCH == 0 {
+				index = uint16(r) % qpp.numPads
+				count = 0
+			}
+
 			offset := qpp.rpadsPtr + uintptr(index)<<8 + uintptr(data[i]) // Calculate the offset
 			data[i] = *(*byte)(unsafe.Pointer(offset)) ^ byte(r)          // Apply the permutation to the data byte
+			count++
+			r = xorshift32(r)
 		}
+
+		// set back r & count
+		rand.seed64 = uint64(r)
+		rand.count += uint8(len(data) % PAD_SWITCH)
 	default:
 		// Handle other cases if needed
 	}
