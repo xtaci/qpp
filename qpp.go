@@ -125,7 +125,6 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 
 	// loop
 	for i := 0; i < len(data); i++ {
-		// switch to another permutation pad for every 256 bytes
 		if count == PAD_SWITCH {
 			index = uint16(r) % qpp.numPads
 			count = 0
