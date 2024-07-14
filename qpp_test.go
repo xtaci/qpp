@@ -15,7 +15,7 @@ func TestPads(t *testing.T) {
 	numPads := uint16(8)
 	seed := make([]byte, 32)
 	io.ReadFull(rand.Reader, seed)
-	qpp := NewQPP(seed, numPads, 8)
+	qpp := NewQPP(seed, numPads)
 	matrixBytes := 1 << 8
 	t.Log(qpp.pads)
 	t.Log(qpp.rpads)
@@ -35,8 +35,8 @@ func TestEncryption(t *testing.T) {
 	seed := make([]byte, 32)
 	io.ReadFull(rand.Reader, seed)
 
-	sender := NewQPP(seed, 1024, 8)
-	receiver := NewQPP(seed, 1024, 8)
+	sender := NewQPP(seed, 1024)
+	receiver := NewQPP(seed, 1024)
 
 	original := make([]byte, 65536)
 	io.ReadFull(rand.Reader, original)
@@ -52,7 +52,7 @@ func TestEncryption2(t *testing.T) {
 	seed := make([]byte, 32)
 	io.ReadFull(rand.Reader, seed)
 
-	qpp := NewQPP(seed, 1024, 8)
+	qpp := NewQPP(seed, 1024)
 
 	original := make([]byte, 65536)
 	io.ReadFull(rand.Reader, original)
@@ -68,7 +68,7 @@ func TestEncryptionMixedPRNG(t *testing.T) {
 	seed := make([]byte, 32)
 	io.ReadFull(rand.Reader, seed)
 
-	qpp := NewQPP(seed, 1024, 8)
+	qpp := NewQPP(seed, 1024)
 
 	original := make([]byte, 65536)
 	io.ReadFull(rand.Reader, original)
@@ -102,7 +102,7 @@ func BenchmarkQPP(b *testing.B) {
 	seed := make([]byte, 32)
 	io.ReadFull(rand.Reader, seed)
 
-	sender := NewQPP(seed, 64, 8)
+	sender := NewQPP(seed, 64)
 	msg := make([]byte, 512)
 	io.ReadFull(rand.Reader, msg)
 
