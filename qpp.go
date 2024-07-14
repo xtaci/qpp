@@ -120,18 +120,17 @@ func (qpp *QuantumPermutationPad) CreatePRNG(seed []byte) *Rand {
 func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 	// initial r, index, count
 	r := uint32(rand.seed64)
-	index := uint16(r) % qpp.numPads // Select a permutation matrix index
+	base := qpp.padsPtr + uintptr(uint16(r)%qpp.numPads)<<8
 	count := rand.count
 
 	// loop
 	for i := 0; i < len(data); i++ {
 		if count == PAD_SWITCH {
-			index = uint16(r) % qpp.numPads
+			base = qpp.padsPtr + uintptr(uint16(r)%qpp.numPads)<<8
 			count = 0
 		}
 
-		offset := qpp.padsPtr + uintptr(index)<<8 + uintptr(data[i]^byte(r)) // Calculate the offset
-		data[i] = *(*byte)(unsafe.Pointer(offset))                           // Apply the permutation to the data byte
+		data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]^byte(r)))) // Apply the permutation to the data byte
 		count++
 		r = xorshift32(r)
 	}
@@ -146,17 +145,16 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 // This function shares the same permutation matrices
 func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *Rand) {
 	r := uint32(rand.seed64)
-	index := uint16(r) % qpp.numPads // Select a permutation matrix index
+	base := qpp.rpadsPtr + uintptr(uint16(r)%qpp.numPads)<<8
 	count := rand.count
 
 	for i := 0; i < len(data); i++ {
 		if count == PAD_SWITCH {
-			index = uint16(r) % qpp.numPads
+			base = qpp.rpadsPtr + uintptr(uint16(r)%qpp.numPads)<<8
 			count = 0
 		}
 
-		offset := qpp.rpadsPtr + uintptr(index)<<8 + uintptr(data[i]) // Calculate the offset
-		data[i] = *(*byte)(unsafe.Pointer(offset)) ^ byte(r)          // Apply the permutation to the data byte
+		data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]))) ^ byte(r) // Apply the permutation to the data byte
 		count++
 		r = xorshift32(r)
 	}
