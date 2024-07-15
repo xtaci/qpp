@@ -127,7 +127,7 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 	// handle unaligned 8bytes
 	if count != 0 {
 		for i := 0; i < len(data); i++ {
-			if count%PAD_SWITCH == 0 {
+			if count == PAD_SWITCH {
 				r = xorshift64star(r)
 				data = data[i:] // aligned bytes start from here
 				base = qpp.padsPtr + uintptr(uint16(r)%qpp.numPads)<<8
@@ -192,7 +192,7 @@ func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *Rand) {
 	// handle unaligned 8bytes
 	if count != 0 {
 		for i := 0; i < len(data); i++ {
-			if count%PAD_SWITCH == 0 {
+			if count == PAD_SWITCH {
 				r = xorshift64star(r)
 				data = data[i:] // aligned bytes start from here
 				base = qpp.rpadsPtr + uintptr(uint16(r)%qpp.numPads)<<8
