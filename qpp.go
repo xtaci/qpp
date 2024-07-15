@@ -127,16 +127,20 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 	// handle unaligned 8bytes
 	if count != 0 {
 		for i := 0; i < len(data); i++ {
+			// switch to another pad when count reaches PAD_SWITCH
 			if count == PAD_SWITCH {
+				// switch to another pad
 				r = xorshift64star(r)
-				data = data[i:] // aligned bytes start from here
 				base = qpp.padsPtr + uintptr(uint16(r)%qpp.numPads)<<8
+
+				data = data[i:] // aligned bytes start from here
 				count = 0
 				break
 			}
 
+			// using r as the base random number
 			rr = byte(r >> (i * 8))
-			data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]^rr))) // Apply the permutation to the data byte
+			data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]^rr)))
 			count++
 		}
 	}
@@ -171,7 +175,7 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 	// handle remainning unaligned bytes
 	for i := 0; i < len(data); i++ {
 		rr = byte(r >> (i * 8))
-		data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]^byte(rr)))) // Apply the permutation to the data byte
+		data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]^byte(rr))))
 		count++
 	}
 
@@ -194,14 +198,14 @@ func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *Rand) {
 		for i := 0; i < len(data); i++ {
 			if count == PAD_SWITCH {
 				r = xorshift64star(r)
-				data = data[i:] // aligned bytes start from here
 				base = qpp.rpadsPtr + uintptr(uint16(r)%qpp.numPads)<<8
+				data = data[i:]
 				count = 0
 				break
 			}
 
 			rr = byte(r >> (i * 8))
-			data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]))) ^ rr // Apply the permutation to the data byte
+			data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]))) ^ rr
 			count++
 		}
 	}
@@ -237,7 +241,7 @@ func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *Rand) {
 	// handle remainning unaligned bytes
 	for i := 0; i < len(data); i++ {
 		rr = byte(r >> (i * 8))
-		data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]))) ^ rr // Apply the permutation to the data byte
+		data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]))) ^ rr
 		count++
 	}
 
