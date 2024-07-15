@@ -174,7 +174,7 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 	}
 	data = data[repeat*8:]
 
-	// handle remainning unaligned bytes
+	// handle remaining unaligned bytes
 	for i := 0; i < len(data); i++ {
 		rr = byte(r >> (count * 8))
 		data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]^byte(rr))))
@@ -242,7 +242,7 @@ func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *Rand) {
 	}
 	data = data[repeat*8:]
 
-	// handle remainning unaligned bytes
+	// handle remaining unaligned bytes
 	for i := 0; i < len(data); i++ {
 		rr = byte(r >> (count * 8))
 		data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]))) ^ rr

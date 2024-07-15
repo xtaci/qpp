@@ -98,7 +98,7 @@ func TestEncryptionRandLength(t *testing.T) {
 	sender := NewQPP(seed, 1024)
 	receiver := NewQPP(seed, 1024)
 
-	original := make([]byte, 10*1024*1024)
+	original := make([]byte, 1024*1024*1024)
 	io.ReadFull(rand.Reader, original)
 	msg := make([]byte, len(original))
 	copy(msg, original)
@@ -106,7 +106,7 @@ func TestEncryptionRandLength(t *testing.T) {
 	// 12 == 3 + 5 + 4
 	start := msg
 	for len(start) > 0 {
-		l := mathrand.Intn(len(start)+1) % 256
+		l := mathrand.Intn(len(start)+1) % 257
 		sender.Encrypt(start[:l])
 		start = start[l:]
 	}
@@ -116,7 +116,7 @@ func TestEncryptionRandLength(t *testing.T) {
 	// 12 = 9 + 1 + 2
 	start = msg
 	for len(start) > 0 {
-		l := mathrand.Intn(len(start)+1) % 256
+		l := mathrand.Intn(len(start)+1) % 313
 		receiver.Decrypt(start[:l])
 		start = start[l:]
 	}
