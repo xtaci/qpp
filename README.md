@@ -16,7 +16,7 @@ The [Quantum Permutation Pad](https://link.springer.com/content/pdf/10.1140/epjq
 
 2. **Quantum Bits (Qubits)**: Instead of classical bits (which are either 0 or 1), QPP uses qubits, which can be in a state of 0, 1, or any quantum superposition of these states.
 
-3. **Permutation Operations**: Permutations in the context of QPP refer to rearranging the order of qubits in a quantum state. These permutations can be thought of as quantum gates that alter the qubit states in a manner that is hard to predict without the correct key.
+3. **Permutation Operations**: Permutations in the context of QPP refer to rearranging the order of computational base. These permutations can be thought of as quantum gates that alter the qubit states in a manner that is hard to predict without the correct key.
 
 ## Functionality of Quantum Permutation Pad
 
