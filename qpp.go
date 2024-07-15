@@ -119,20 +119,58 @@ func (qpp *QuantumPermutationPad) CreatePRNG(seed []byte) *Rand {
 // This function shares the same permutation matrices
 func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 	// initial r, index, count
-	r := uint32(rand.seed64)
+	r := rand.seed64
 	base := qpp.padsPtr + uintptr(uint16(r)%qpp.numPads)<<8
 	count := rand.count
+	var rr byte
 
-	// loop
+	// handle unaligned 8bytes
 	for i := 0; i < len(data); i++ {
-		if count == PAD_SWITCH {
+		if count%PAD_SWITCH == 0 {
+			data = data[i:] // aligned bytes start from here
 			base = qpp.padsPtr + uintptr(uint16(r)%qpp.numPads)<<8
 			count = 0
+			break
 		}
 
-		data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]^byte(r)))) // Apply the permutation to the data byte
+		rr = byte(r >> count)
+		data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]^rr))) // Apply the permutation to the data byte
 		count++
-		r = xorshift32(r)
+	}
+
+	// handle 8-bytes aligned
+	repeat := len(data) / 8
+	for i := 0; i < repeat; i++ {
+		d := data[i*8 : i*8+8]
+		rr0 := byte(r >> 0)
+		rr1 := byte(r >> 1)
+		rr2 := byte(r >> 2)
+		rr3 := byte(r >> 3)
+		rr4 := byte(r >> 4)
+		rr5 := byte(r >> 5)
+		rr6 := byte(r >> 6)
+		rr7 := byte(r >> 7)
+
+		d[0] = *(*byte)(unsafe.Pointer(base + uintptr(d[0]^rr0)))
+		d[1] = *(*byte)(unsafe.Pointer(base + uintptr(d[1]^rr1)))
+		d[2] = *(*byte)(unsafe.Pointer(base + uintptr(d[2]^rr2)))
+		d[3] = *(*byte)(unsafe.Pointer(base + uintptr(d[3]^rr3)))
+		d[4] = *(*byte)(unsafe.Pointer(base + uintptr(d[4]^rr4)))
+		d[5] = *(*byte)(unsafe.Pointer(base + uintptr(d[5]^rr5)))
+		d[6] = *(*byte)(unsafe.Pointer(base + uintptr(d[6]^rr6)))
+		d[7] = *(*byte)(unsafe.Pointer(base + uintptr(d[7]^rr7)))
+
+		r = xorshift64star(r)
+
+		base = qpp.padsPtr + uintptr(uint16(r)%qpp.numPads)<<8
+	}
+	data = data[repeat*8:]
+
+	// handle remainning unaligned bytes
+	for i := 0; i < len(data); i++ {
+		rr = byte(r >> count)
+		data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]^byte(rr)))) // Apply the permutation to the data byte
+		count++
 	}
 
 	// set back r & count
@@ -144,19 +182,58 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 // DecryptWithPRNG decrypts the data using the Quantum Permutation Pad with a custom PRNG
 // This function shares the same permutation matrices
 func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *Rand) {
-	r := uint32(rand.seed64)
+	r := rand.seed64
 	base := qpp.rpadsPtr + uintptr(uint16(r)%qpp.numPads)<<8
 	count := rand.count
+	var rr byte
 
+	// handle unaligned 8bytes
 	for i := 0; i < len(data); i++ {
-		if count == PAD_SWITCH {
+		if count%PAD_SWITCH == 0 {
+			data = data[i:] // aligned bytes start from here
 			base = qpp.rpadsPtr + uintptr(uint16(r)%qpp.numPads)<<8
 			count = 0
+			break
 		}
 
-		data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]))) ^ byte(r) // Apply the permutation to the data byte
+		rr = byte(r >> count)
+		data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]))) ^ rr // Apply the permutation to the data byte
 		count++
-		r = xorshift32(r)
+	}
+
+	// handle 8-bytes aligned
+	repeat := len(data) / 8
+	for i := 0; i < repeat; i++ {
+		d := data[i*8 : i*8+8]
+		rr0 := byte(r >> 0)
+		rr1 := byte(r >> 1)
+		rr2 := byte(r >> 2)
+		rr3 := byte(r >> 3)
+		rr4 := byte(r >> 4)
+		rr5 := byte(r >> 5)
+		rr6 := byte(r >> 6)
+		rr7 := byte(r >> 7)
+
+		d[0] = *(*byte)(unsafe.Pointer(base + uintptr(d[0]))) ^ rr0
+		d[1] = *(*byte)(unsafe.Pointer(base + uintptr(d[1]))) ^ rr1
+		d[2] = *(*byte)(unsafe.Pointer(base + uintptr(d[2]))) ^ rr2
+		d[3] = *(*byte)(unsafe.Pointer(base + uintptr(d[3]))) ^ rr3
+		d[4] = *(*byte)(unsafe.Pointer(base + uintptr(d[4]))) ^ rr4
+		d[5] = *(*byte)(unsafe.Pointer(base + uintptr(d[5]))) ^ rr5
+		d[6] = *(*byte)(unsafe.Pointer(base + uintptr(d[6]))) ^ rr6
+		d[7] = *(*byte)(unsafe.Pointer(base + uintptr(d[7]))) ^ rr7
+
+		r = xorshift64star(r)
+
+		base = qpp.rpadsPtr + uintptr(uint16(r)%qpp.numPads)<<8
+	}
+	data = data[repeat*8:]
+
+	// handle remainning unaligned bytes
+	for i := 0; i < len(data); i++ {
+		rr = byte(r >> count)
+		data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]))) ^ rr // Apply the permutation to the data byte
+		count++
 	}
 
 	// set back r & count
