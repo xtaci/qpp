@@ -84,10 +84,43 @@ func TestEncryption3(t *testing.T) {
 	assert.NotEqual(t, original, msg, "not encrypted")
 
 	// 12 = 9 + 1 + 2
-	//receiver.Decrypt(msg[:9])
-	//receiver.Decrypt(msg[9:10])
-	//receiver.Decrypt(msg[10:])
-	receiver.Decrypt(msg)
+	receiver.Decrypt(msg[:9])
+	receiver.Decrypt(msg[9:10])
+	receiver.Decrypt(msg[10:])
+	//receiver.Decrypt(msg)
+	assert.Equal(t, original, msg, "not equal")
+}
+
+func TestEncryptionRandLength(t *testing.T) {
+	seed := make([]byte, 32)
+	io.ReadFull(rand.Reader, seed)
+
+	sender := NewQPP(seed, 1024)
+	receiver := NewQPP(seed, 1024)
+
+	original := make([]byte, 10*1024*1024)
+	io.ReadFull(rand.Reader, original)
+	msg := make([]byte, len(original))
+	copy(msg, original)
+
+	// 12 == 3 + 5 + 4
+	start := msg
+	for len(start) > 0 {
+		l := mathrand.Intn(len(start)+1) % 256
+		sender.Encrypt(start[:l])
+		start = start[l:]
+	}
+	//sender.Encrypt(msg)
+	assert.NotEqual(t, original, msg, "not encrypted")
+
+	// 12 = 9 + 1 + 2
+	start = msg
+	for len(start) > 0 {
+		l := mathrand.Intn(len(start)+1) % 256
+		receiver.Decrypt(start[:l])
+		start = start[l:]
+	}
+	//receiver.Decrypt(msg)
 	assert.Equal(t, original, msg, "not equal")
 }
 
