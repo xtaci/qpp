@@ -125,17 +125,20 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 	var rr byte
 
 	// handle unaligned 8bytes
-	for i := 0; i < len(data); i++ {
-		if count%PAD_SWITCH == 0 {
-			data = data[i:] // aligned bytes start from here
-			base = qpp.padsPtr + uintptr(uint16(r)%qpp.numPads)<<8
-			count = 0
-			break
-		}
+	if count != 0 {
+		for i := 0; i < len(data); i++ {
+			if count%PAD_SWITCH == 0 {
+				r = xorshift64star(r)
+				data = data[i:] // aligned bytes start from here
+				base = qpp.padsPtr + uintptr(uint16(r)%qpp.numPads)<<8
+				count = 0
+				break
+			}
 
-		rr = byte(r >> count)
-		data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]^rr))) // Apply the permutation to the data byte
-		count++
+			rr = byte(r >> count)
+			data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]^rr))) // Apply the permutation to the data byte
+			count++
+		}
 	}
 
 	// handle 8-bytes aligned
@@ -161,7 +164,6 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 		d[7] = *(*byte)(unsafe.Pointer(base + uintptr(d[7]^rr7)))
 
 		r = xorshift64star(r)
-
 		base = qpp.padsPtr + uintptr(uint16(r)%qpp.numPads)<<8
 	}
 	data = data[repeat*8:]
@@ -188,17 +190,20 @@ func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *Rand) {
 	var rr byte
 
 	// handle unaligned 8bytes
-	for i := 0; i < len(data); i++ {
-		if count%PAD_SWITCH == 0 {
-			data = data[i:] // aligned bytes start from here
-			base = qpp.rpadsPtr + uintptr(uint16(r)%qpp.numPads)<<8
-			count = 0
-			break
-		}
+	if count != 0 {
+		for i := 0; i < len(data); i++ {
+			if count%PAD_SWITCH == 0 {
+				r = xorshift64star(r)
+				data = data[i:] // aligned bytes start from here
+				base = qpp.rpadsPtr + uintptr(uint16(r)%qpp.numPads)<<8
+				count = 0
+				break
+			}
 
-		rr = byte(r >> count)
-		data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]))) ^ rr // Apply the permutation to the data byte
-		count++
+			rr = byte(r >> count)
+			data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]))) ^ rr // Apply the permutation to the data byte
+			count++
+		}
 	}
 
 	// handle 8-bytes aligned
