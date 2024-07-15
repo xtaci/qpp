@@ -31,8 +31,9 @@ const (
 
 // Rand is a stateful random number generator
 type Rand struct {
-	seed64 uint64
-	count  uint8
+	xoshiro [4]uint64
+	seed64  uint64
+	count   uint8
 }
 
 // QuantumPermutationPad represents the encryption/decryption structure using quantum permutation pads
@@ -107,12 +108,25 @@ func (qpp *QuantumPermutationPad) CreatePRNG(seed []byte) *Rand {
 	mac := hmac.New(sha256.New, seed)
 	mac.Write([]byte(PM_SELECTOR_IDENTIFIER))
 	sum := mac.Sum(nil)
-	dk := pbkdf2.Key(sum, []byte(PRNG_SALT), PBKDF2_LOOPS, 8, sha1.New) // Derive a key for PRNG
+
+	// Derive a key for PRNG
+	dk := pbkdf2.Key(sum, []byte(PRNG_SALT), PBKDF2_LOOPS, 8, sha1.New)
 	seed64 := binary.LittleEndian.Uint64(dk)
 	if seed64 == 0 {
 		seed64 = MAGIC
 	}
-	return &Rand{seed64: seed64} // Create and return PRNG
+
+	// Derive a key for xoroshiro256**
+	xoshiro := pbkdf2.Key(sum, []byte(PRNG_SALT), PBKDF2_LOOPS, 32, sha1.New)
+
+	// Create and return PRNG
+	rd := &Rand{}
+	rd.seed64 = seed64 // initial random number
+	rd.xoshiro[0] = binary.LittleEndian.Uint64(xoshiro[0:8])
+	rd.xoshiro[1] = binary.LittleEndian.Uint64(xoshiro[8:16])
+	rd.xoshiro[2] = binary.LittleEndian.Uint64(xoshiro[16:24])
+	rd.xoshiro[3] = binary.LittleEndian.Uint64(xoshiro[24:32])
+	return rd
 }
 
 // EncryptWithPRNG encrypts the data using the Quantum Permutation Pad with a custom PRNG
@@ -137,7 +151,7 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 			// switch to another pad when count reaches PAD_SWITCH
 			if count == PAD_SWITCH {
 				// switch to another pad
-				r = xorshift64star(r)
+				r = xoshiro256ss(&rand.xoshiro)
 				base = qpp.padsPtr + uintptr(uint16(r)%qpp.numPads)<<8
 				offset = offset + 1
 				count = 0
@@ -169,7 +183,7 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 		d[6] = *(*byte)(unsafe.Pointer(base + uintptr(d[6]^rr6)))
 		d[7] = *(*byte)(unsafe.Pointer(base + uintptr(d[7]^rr7)))
 
-		r = xorshift64star(r)
+		r = xoshiro256ss(&rand.xoshiro)
 		base = qpp.padsPtr + uintptr(uint16(r)%qpp.numPads)<<8
 	}
 	data = data[repeat*8:]
@@ -204,7 +218,7 @@ func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *Rand) {
 			count++
 
 			if count == PAD_SWITCH {
-				r = xorshift64star(r)
+				r = xoshiro256ss(&rand.xoshiro)
 				base = qpp.rpadsPtr + uintptr(uint16(r)%qpp.numPads)<<8
 				offset = offset + 1
 				count = 0
@@ -236,8 +250,7 @@ func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *Rand) {
 		d[6] = *(*byte)(unsafe.Pointer(base + uintptr(d[6]))) ^ rr6
 		d[7] = *(*byte)(unsafe.Pointer(base + uintptr(d[7]))) ^ rr7
 
-		r = xorshift64star(r)
-
+		r = xoshiro256ss(&rand.xoshiro)
 		base = qpp.rpadsPtr + uintptr(uint16(r)%qpp.numPads)<<8
 	}
 	data = data[repeat*8:]
