@@ -94,7 +94,19 @@ func main() {
 }
 ```
 
+## Security consideration in setting PADs
 
+The number of pads is best to be coprime with 8.
+
+**Pads(64) GCD(64,8) == 8**
+
+![1721063372345](https://github.com/user-attachments/assets/4f6d5904-2663-46d7-870d-9fd7435df4d0)
+
+**Pads(15) GCD(15,8) == 1**
+
+![image](https://github.com/user-attachments/assets/accd3992-a56e-4059-a472-39ba5ad75660)
+
+As you can tell the difference from the **Chi square distribution**, randomness has been enhanced by setting to numbers that are coprimes to 8.
 
 ## Conclusion
 
