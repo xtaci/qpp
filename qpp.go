@@ -109,23 +109,15 @@ func (qpp *QuantumPermutationPad) CreatePRNG(seed []byte) *Rand {
 	mac.Write([]byte(PM_SELECTOR_IDENTIFIER))
 	sum := mac.Sum(nil)
 
-	// Derive a key for PRNG
-	dk := pbkdf2.Key(sum, []byte(PRNG_SALT), PBKDF2_LOOPS, 8, sha1.New)
-	seed64 := binary.LittleEndian.Uint64(dk)
-	if seed64 == 0 {
-		seed64 = MAGIC
-	}
-
 	// Derive a key for xoroshiro256**
 	xoshiro := pbkdf2.Key(sum, []byte(PRNG_SALT), PBKDF2_LOOPS, 32, sha1.New)
-
 	// Create and return PRNG
 	rd := &Rand{}
-	rd.seed64 = seed64 // initial random number
 	rd.xoshiro[0] = binary.LittleEndian.Uint64(xoshiro[0:8])
 	rd.xoshiro[1] = binary.LittleEndian.Uint64(xoshiro[8:16])
 	rd.xoshiro[2] = binary.LittleEndian.Uint64(xoshiro[16:24])
 	rd.xoshiro[3] = binary.LittleEndian.Uint64(xoshiro[24:32])
+	rd.seed64 = xoshiro256ss(&rd.xoshiro)
 	return rd
 }
 
