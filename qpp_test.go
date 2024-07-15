@@ -64,6 +64,33 @@ func TestEncryption2(t *testing.T) {
 	assert.Equal(t, original, msg, "not equal")
 }
 
+func TestEncryption3(t *testing.T) {
+	seed := make([]byte, 32)
+	io.ReadFull(rand.Reader, seed)
+
+	sender := NewQPP(seed, 1024)
+	receiver := NewQPP(seed, 1024)
+
+	original := make([]byte, 12)
+	io.ReadFull(rand.Reader, original)
+	msg := make([]byte, len(original))
+	copy(msg, original)
+
+	// 12 == 3 + 5 + 4
+	sender.Encrypt(msg[:3])
+	sender.Encrypt(msg[3:8])
+	sender.Encrypt(msg[8:])
+	//sender.Encrypt(msg)
+	assert.NotEqual(t, original, msg, "not encrypted")
+
+	// 12 = 9 + 1 + 2
+	//receiver.Decrypt(msg[:9])
+	//receiver.Decrypt(msg[9:10])
+	//receiver.Decrypt(msg[10:])
+	receiver.Decrypt(msg)
+	assert.Equal(t, original, msg, "not equal")
+}
+
 func TestEncryptionMixedPRNG(t *testing.T) {
 	seed := make([]byte, 32)
 	io.ReadFull(rand.Reader, seed)
