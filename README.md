@@ -64,7 +64,7 @@ func main() {
     seed := make([]byte, 32)
     io.ReadFull(rand.Reader, seed)
 
-    qpp := NewQPP(seed, 1024, 8)
+    qpp := NewQPP(seed, 1024)
 
     msg := make([]byte, 65536)
     io.ReadFull(rand.Reader, msg)
@@ -81,7 +81,7 @@ func main() {
     seed := make([]byte, 32)
     io.ReadFull(rand.Reader, seed)
 
-    qpp := NewQPP(seed, 1024, 8)
+    qpp := NewQPP(seed, 1024)
 
     msg := make([]byte, 65536)
     io.ReadFull(rand.Reader, msg)
