@@ -135,7 +135,7 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 				break
 			}
 
-			rr = byte(r >> i * 8)
+			rr = byte(r >> (i * 8))
 			data[i] = *(*byte)(unsafe.Pointer(base + uintptr(data[i]^rr))) // Apply the permutation to the data byte
 			count++
 		}
