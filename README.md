@@ -106,7 +106,7 @@ The number of pads is best to be coprime with 8.
 
 ![image](https://github.com/user-attachments/assets/accd3992-a56e-4059-a472-39ba5ad75660)
 
-As you can tell the difference from the **Chi square distribution**, randomness has been enhanced by setting to numbers that are coprimes to 8.
+As you can tell the difference from the **[Chi square distribution](https://en.wikipedia.org/wiki/Chi-squared_distribution)**, randomness has been enhanced by setting to numbers that are coprimes to 8.
 
 ## Conclusion
 
