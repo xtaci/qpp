@@ -64,7 +64,7 @@ func main() {
     seed := make([]byte, 32)
     io.ReadFull(rand.Reader, seed)
 
-    qpp := NewQPP(seed, 1024)
+    qpp := NewQPP(seed, 977) // a prime number of pads
 
     msg := make([]byte, 65536)
     io.ReadFull(rand.Reader, msg)
@@ -81,7 +81,7 @@ func main() {
     seed := make([]byte, 32)
     io.ReadFull(rand.Reader, seed)
 
-    qpp := NewQPP(seed, 1024)
+    qpp := NewQPP(seed, 977)
 
     msg := make([]byte, 65536)
     io.ReadFull(rand.Reader, msg)
