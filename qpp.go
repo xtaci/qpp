@@ -42,7 +42,7 @@ type QuantumPermutationPad struct {
 	pads     []byte  // Encryption pads, each pad is a permutation matrix for encryption
 	rpads    []byte  // Decryption pads, each pad is a reverse permutation matrix for decryption
 	padsPtr  uintptr // raw pointer to encryption pads
-	rpadsPtr uintptr // raw pointer to encryption pads
+	rpadsPtr uintptr // raw pointer to decryption pads
 
 	numPads uint16 // Number of pads (permutation matrices)
 	encRand *Rand  // Default random source for encryption pad selection
