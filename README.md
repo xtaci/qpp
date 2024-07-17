@@ -53,9 +53,8 @@ The permutation pad could be written in [Cycle notation](https://en.wikipedia.or
 
 
 ## Usage
+Internal PRNG(NOT RECOMMENDED)
 ```golang
-Internal PRNG:
-
 func main() {
     seed := make([]byte, 32)
     io.ReadFull(rand.Reader, seed)
@@ -70,9 +69,8 @@ func main() {
 }
 ```
 
+External PRNG(**RECOMMENDED**)
 ```golang
-External PRNG:
-
 func main() {
     seed := make([]byte, 32)
     io.ReadFull(rand.Reader, seed)
