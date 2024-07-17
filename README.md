@@ -16,21 +16,7 @@ The [Quantum Permutation Pad](https://link.springer.com/content/pdf/10.1140/epjq
 
 2. **Quantum Bits (Qubits)**: Instead of classical bits (which are either 0 or 1), QPP uses qubits, which can be in a state of 0, 1, or any quantum superposition of these states.
 
-3. **Permutation Operations**: Permutations in the context of QPP refer to rearranging the ways to **transform/interpret** the plaintext comparing to rearranging the keys round and round in classical cryptography. These total permutations can be thought of as $P_n$. For a 8-bit byte, the permutations is $P_{256} = 256! = 857817775342842654119082271681232625157781520279485619859655650377269452553147589377440291360451408450375885342336584306157196834693696475322289288497426025679637332563368786442675207626794560187968867971521143307702077526646451464709187326100832876325702818980773671781454170250523018608495319068138257481070252817559459476987034665712738139286205234756808218860701203611083152093501947437109101726968262861606263662435022840944191408424615936000000000000000000000000000000000000000000000000000000000000000$
-   
-## Functionality of Quantum Permutation Pad
-
-1. **Key Generation**: The QPP protocol involves generating a key based on quantum states. This key can be a set of quantum gates or permutation operations that will be applied to the qubits.
-
-2. **Encryption**:
-   - **Prepare Qubits**: The sender prepares a set of qubits in a known quantum state.
-   - **Apply Permutations**: Using the generated key, the sender applies a series of permutation operations to the qubits. These permutations act as the encryption process, transforming the quantum state into an encrypted form.
-
-3. **Transmission**: The encrypted quantum state (the qubits after permutation) is transmitted to the receiver.
-
-4. **Decryption**:
-   - **Reverse Permutations**: The receiver, who has the same key, applies the inverse of the permutation operations to the received qubits. This step decrypts the quantum state, returning it to its original form.
-   - **Measurement**: The receiver then measures the qubits to obtain the classical data.
+3. **Permutation Operations**: Permutations in the context of QPP refer to rearranging the ways to **transform/interpret** the plaintext comparing to rearranging the keys round and round in classical cryptography. These total permutations can be thought of as $P_n$. For a 8-bit byte, the overall permutations is $P_{256} = 256! = 857817775342842654119082271681232625157781520279485619859655650377269452553147589377440291360451408450375885342336584306157196834693696475322289288497426025679637332563368786442675207626794560187968867971521143307702077526646451464709187326100832876325702818980773671781454170250523018608495319068138257481070252817559459476987034665712738139286205234756808218860701203611083152093501947437109101726968262861606263662435022840944191408424615936000000000000000000000000000000000000000000000000000000000000000$
 
 ## Applications and Benefits
 
@@ -38,21 +24,7 @@ The [Quantum Permutation Pad](https://link.springer.com/content/pdf/10.1140/epjq
 - **Future-Proof**: As quantum computers become more powerful, classical cryptographic schemes (like RSA and ECC) are at risk. QPP provides a quantum-resistant alternative.
 - **Secure Communication**: Useful for secure communications in quantum networks and for safeguarding highly sensitive data.
 
-## Security design in this implementatoin
-The overall security is equivalent to **1680-bit** symmetric encryption, with each **BYTE** possessing a cryptographic strength of 256 bits.
-
-The number of permutation matrices in an 8-qubit system is determined based on the provided seed and is selected randomly.
-<img width="1108" alt="image" src="https://github.com/xtaci/qpp/assets/2346725/21686542-2e94-44e0-8607-557986b4ac7b">
-
-Try directly from https://github.com/xtaci/kcptun/releases with the ```-QPP``` option enabled.
-
-The permutation pad could be written in [Cycle notation](https://en.wikipedia.org/wiki/Permutation#Cycle_notation) as: $\sigma =(1\ 2\ 255)(3\ 36)(4\ 82\ 125)(....)$, which the elements are not reversible by encrypting twice simply.
-
-## Performance
-![image](https://github.com/user-attachments/assets/4061d4a9-e7fa-43f5-89ef-f6ef6c00a2e7)
-
-
-## Usage
+## Example Usage
 Internal PRNG(NOT RECOMMENDED)
 ```golang
 func main() {
@@ -88,15 +60,30 @@ func main() {
 }
 ```
 
+## Security design in this implementatoin
+The overall security is equivalent to **1680-bit** symmetric encryption, with each **BYTE** possessing a cryptographic strength of 256 bits.
+
+The number of permutation matrices in an 8-qubit system is determined based on the provided seed and is selected randomly.
+<img width="1108" alt="image" src="https://github.com/xtaci/qpp/assets/2346725/21686542-2e94-44e0-8607-557986b4ac7b">
+
+Try directly from https://github.com/xtaci/kcptun/releases with the ```-QPP``` option enabled.
+
+The permutation pad could be written in [Cycle notation](https://en.wikipedia.org/wiki/Permutation#Cycle_notation) as: $\sigma =(1\ 2\ 255)(3\ 36)(4\ 82\ 125)(....)$, which the elements are not reversible by encrypting twice simply.
+
+## Performance
+In a modern CPU, QPP can easily reach speeds over **1GB/s**.
+
+![image](https://github.com/user-attachments/assets/4061d4a9-e7fa-43f5-89ef-f6ef6c00a2e7)
+
 ## Security consideration in setting PADs
 
-The number of pads is best to be coprime with 8.
+The number of pads is best to be coprime with 8. We demonstrate encrypting the Bible with 64 pads and 15 pads below:
 
-**Pads(64) GCD(64,8) == 8**
+**For Pads(64)**, then $GCD(64,8) == 8$
 
 ![1721063372345](https://github.com/user-attachments/assets/4f6d5904-2663-46d7-870d-9fd7435df4d0)
 
-**Pads(15) GCD(15,8) == 1**
+**For Pads(15)**, then $GCD(15,8) == 1$, **COPRIME!!!**
 
 ![image](https://github.com/user-attachments/assets/accd3992-a56e-4059-a472-39ba5ad75660)
 
