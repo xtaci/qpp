@@ -42,7 +42,7 @@ func main() {
 }
 ```
 
-External PRNG(**RECOMMENDED**)
+External PRNG, with shared pads. (**RECOMMENDED**)
 ```golang
 func main() {
     seed := make([]byte, 32)
@@ -62,14 +62,14 @@ func main() {
 ```
 
 ## Security design in this implementatoin
-The overall security is equivalent to **1680-bit** symmetric encryption, with each **BYTE** possessing a cryptographic strength of 256 bits.
+The overall security is equivalent to **1683-bit** symmetric encryption.
 
 The number of permutation matrices in an 8-qubit system is determined based on the provided seed and is selected randomly.
-<img width="1108" alt="image" src="https://github.com/xtaci/qpp/assets/2346725/21686542-2e94-44e0-8607-557986b4ac7b">
+<img width="867" alt="image" src="https://github.com/user-attachments/assets/93ce8634-5300-47b1-ba1b-e46d9b46b432">
+
+The permutation pad could be written in [Cycle notation](https://en.wikipedia.org/wiki/Permutation#Cycle_notation) as: $\sigma =(1\ 2\ 255)(3\ 36)(4\ 82\ 125)(....)$, which the elements are not reversible by **XORing** twice like in other [stream ciphers](https://en.wikipedia.org/wiki/Stream_cipher_attacks).
 
 Try directly from https://github.com/xtaci/kcptun/releases with the ```-QPP``` option enabled.
-
-The permutation pad could be written in [Cycle notation](https://en.wikipedia.org/wiki/Permutation#Cycle_notation) as: $\sigma =(1\ 2\ 255)(3\ 36)(4\ 82\ 125)(....)$, which the elements are not reversible by encrypting twice simply.
 
 ## Performance
 In a modern CPU, QPP can easily reach speeds over **1GB/s**.
