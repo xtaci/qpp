@@ -32,12 +32,6 @@ The [Quantum Permutation Pad](https://link.springer.com/content/pdf/10.1140/epjq
    - **Reverse Permutations**: The receiver, who has the same key, applies the inverse of the permutation operations to the received qubits. This step decrypts the quantum state, returning it to its original form.
    - **Measurement**: The receiver then measures the qubits to obtain the classical data.
 
-## Security Aspects
-
-- **Quantum No-Cloning Theorem**: One of the fundamental principles that enhance the security of QPP is the no-cloning theorem, which states that it is impossible to create an identical copy of an arbitrary unknown quantum state. This property prevents eavesdroppers from copying the qubits during transmission.
-- **Quantum Key Distribution (QKD)**: QPP can be integrated with QKD protocols like BB84 to securely distribute the key used for the permutation operations. QKD ensures that any eavesdropping attempts can be detected.
-- **Unpredictability of Quantum States**: The inherent unpredictability of quantum measurements adds an extra layer of security, making it extremely difficult for an attacker to gain useful information without the correct key.
-
 ## Applications and Benefits
 
 - **High Security**: QPP offers higher security levels compared to classical cryptographic methods, leveraging the unique properties of quantum mechanics.
@@ -51,6 +45,8 @@ The number of permutation matrices in an 8-qubit system is determined based on t
 <img width="1108" alt="image" src="https://github.com/xtaci/qpp/assets/2346725/21686542-2e94-44e0-8607-557986b4ac7b">
 
 Try directly from https://github.com/xtaci/kcptun/releases with the ```-QPP``` option enabled.
+
+The permutation pad could be written in [Cycle notation](https://en.wikipedia.org/wiki/Permutation#Cycle_notation) as: $\sigma =(1\ 2\ 255)(3\ 36)(4\ 82\ 125)(....)$, which the elements are not reversible by encrypting twice simply.
 
 ## Performance
 ![image](https://github.com/user-attachments/assets/4061d4a9-e7fa-43f5-89ef-f6ef6c00a2e7)
