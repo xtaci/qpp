@@ -78,9 +78,8 @@ The diagram clearly demonstrates that switching pads for every byte results in l
 
 Try directly from https://github.com/xtaci/kcptun/releases with the ```-QPP``` option enabled.
 
-## Performance
-In a modern CPU, QPP can easily reach speeds over **1GB/s**.
-
+#### Performance
+In modern CPUs, the latest QPP optimization can easily achieve speeds exceeding 1GB/s.
 ![image](https://github.com/user-attachments/assets/4061d4a9-e7fa-43f5-89ef-f6ef6c00a2e7)
 
 ## Security consideration in setting PADs
