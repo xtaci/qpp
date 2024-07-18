@@ -90,11 +90,11 @@ The number of pads should ideally be coprime with 8, as the results indicate a h
 
 We demonstrate encrypting the Bible with 64 pads and 15 pads below with real data(The Bible encrypted).
 
-**For Pads(64)**, then $GCD(64,8) == 8$
+**For Pads(64)**, then $GCD(64,8) == 8, \chi^2 =3818 $
 
 ![348794146-4f6d5904-2663-46d7-870d-9fd7435df4d0](https://github.com/user-attachments/assets/e2a67bad-7d10-46e4-8d23-9866918ef04b)
 
-**For Pads(15)**, then $GCD(15,8) == 1$, **COPRIME!!!**
+**For Pads(15)**, then $GCD(15,8) == 1,\chi^2 =230$, **COPRIME!!!**
 
 ![348794204-accd3992-a56e-4059-a472-39ba5ad75660](https://github.com/user-attachments/assets/a6fd2cb8-7517-4627-8fd6-0cf29711b09d)
 
