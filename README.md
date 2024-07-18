@@ -78,7 +78,7 @@ The NewQPP generates permutations like(in cycle notation):
 (19 172 177 230 198 45 61 104 136 100 182 85 153 35 192 48 220 94 190 118 195)
 (67)(87 92 93 227 211)(135)(183 243)(187)(231)
 ```
-![a64d1ef0-34b5-4302-9674-ef06cf679e80](https://github.com/user-attachments/assets/4dc402d4-1310-4e7e-b494-3f471c662562)
+![circular](https://github.com/user-attachments/assets/3fa50405-1b4e-4679-a495-548850c4315b)
 
 ## Security design in this implementatoin
 The overall security is equivalent to **1683-bit** symmetric encryption.
