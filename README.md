@@ -69,6 +69,13 @@ The number of permutation matrices in an 8-qubit system is determined based on t
 
 The permutation pad could be written in [Cycle notation](https://en.wikipedia.org/wiki/Permutation#Cycle_notation) as: $\sigma =(1\ 2\ 255)(3\ 36)(4\ 82\ 125)(....)$, which the elements are not reversible by **XORing** twice like in other [stream ciphers](https://en.wikipedia.org/wiki/Stream_cipher_attacks).
 
+#### Locality vs. Randomness
+Random permutation disrupts [locality](https://en.wikipedia.org/wiki/Principle_of_locality), which is crucial for performance. To achieve higher encryption speed, we need to maintain some level of locality. In this design, instead of switching pads for every byte, we switch to a new random pad every 8 bytes.
+
+![QQ_1721279454044](https://github.com/user-attachments/assets/3f6da444-a9f4-4d0a-b190-d59f2dca9f00)
+
+The diagram clearly demonstrates that switching pads for every byte results in low performance, whereas switching pads every 8 bytes yields adequate performance.
+
 Try directly from https://github.com/xtaci/kcptun/releases with the ```-QPP``` option enabled.
 
 ## Performance
@@ -78,7 +85,9 @@ In a modern CPU, QPP can easily reach speeds over **1GB/s**.
 
 ## Security consideration in setting PADs
 
-The number of pads is best to be coprime with 8. We demonstrate encrypting the Bible with 64 pads and 15 pads below:
+The number of pads should ideally be coprime with 8, as the results indicate a hidden structure in the PRNG related to the number 8.
+
+We demonstrate encrypting the Bible with 64 pads and 15 pads below:
 
 **For Pads(64)**, then $GCD(64,8) == 8$
 
