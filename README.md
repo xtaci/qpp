@@ -18,6 +18,9 @@ The [Quantum Permutation Pad](https://link.springer.com/content/pdf/10.1140/epjq
 
 3. **Permutation Operations**: Permutations in the context of QPP refer to rearranging the ways to **transform/interpret** the plaintext comparing to rearranging the keys round and round in classical cryptography. These total permutations can be thought of as $P_n$. For a 8-bit byte, the overall permutations is $P_{256} =$
 ```256! =857817775342842654119082271681232625157781520279485619859655650377269452553147589377440291360451408450375885342336584306157196834693696475322289288497426025679637332563368786442675207626794560187968867971521143307702077526646451464709187326100832876325702818980773671781454170250523018608495319068138257481070252817559459476987034665712738139286205234756808218860701203611083152093501947437109101726968262861606263662435022840944191408424615936000000000000000000000000000000000000000000000000000000000000000```
+4. Classical key space for 8-bit is 256 possible key (inters), then move qpp, the quantum key space become 256! possible permutation operators or gates!
+5. QPP can be implemented both classically with matrices and quantum mechanically with quantum gates .
+
 
 ## Applications and Benefits
 
