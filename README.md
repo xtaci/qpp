@@ -85,8 +85,9 @@ In modern CPUs, the latest QPP optimization can easily achieve speeds exceeding 
 ## Security consideration in setting PADs
 
 The number of pads should ideally be coprime with 8, as the results indicate a hidden structure in the PRNG related to the number 8.
+![88d8de919445147f5d44ee059cca371](https://github.com/user-attachments/assets/9e1a160d-5433-4e24-9782-2ae88d87453d)
 
-We demonstrate encrypting the Bible with 64 pads and 15 pads below:
+We demonstrate encrypting the Bible with 64 pads and 15 pads below with real data(The Bible encrypted).
 
 **For Pads(64)**, then $GCD(64,8) == 8$
 
