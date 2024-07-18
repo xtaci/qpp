@@ -1,5 +1,5 @@
 # Quantum Permutation Pad
-![image](https://github.com/xtaci/qpp/assets/2346725/7a05cc4b-b207-437e-a015-57918906b738)
+![346540972-7a05cc4b-b207-437e-a015-57918906b738](https://github.com/user-attachments/assets/ad8ba0f1-86fa-4de8-9bbd-5fe860c40ff1)
 
 [![GoDoc][1]][2] [![Go Report Card][3]][4]
 
@@ -72,7 +72,7 @@ The permutation pad could be written in [Cycle notation](https://en.wikipedia.or
 #### Locality vs. Randomness
 Random permutation disrupts [locality](https://en.wikipedia.org/wiki/Principle_of_locality), which is crucial for performance. To achieve higher encryption speed, we need to maintain some level of locality. In this design, instead of switching pads for every byte, we switch to a new random pad every 8 bytes.
 
-![QQ_1721279454044](https://github.com/user-attachments/assets/3f6da444-a9f4-4d0a-b190-d59f2dca9f00)
+![349804164-3f6da444-a9f4-4d0a-b190-d59f2dca9f00](https://github.com/user-attachments/assets/2358766e-a0d3-4c21-93cb-c221aa0cece0)
 
 The diagram clearly demonstrates that switching pads for every byte results in low performance, whereas switching pads every 8 bytes yields adequate performance.
 
@@ -80,7 +80,7 @@ Try directly from https://github.com/xtaci/kcptun/releases with the ```-QPP``` o
 
 #### Performance
 In modern CPUs, the latest QPP optimization can easily achieve speeds exceeding 1GB/s.
-![image](https://github.com/user-attachments/assets/4061d4a9-e7fa-43f5-89ef-f6ef6c00a2e7)
+![348621244-4061d4a9-e7fa-43f5-89ef-f6ef6c00a2e7](https://github.com/user-attachments/assets/78952157-df39-4088-b423-01f45548b782)
 
 ## Security consideration in setting PADs
 
@@ -90,11 +90,12 @@ We demonstrate encrypting the Bible with 64 pads and 15 pads below:
 
 **For Pads(64)**, then $GCD(64,8) == 8$
 
-![1721063372345](https://github.com/user-attachments/assets/4f6d5904-2663-46d7-870d-9fd7435df4d0)
+![348794146-4f6d5904-2663-46d7-870d-9fd7435df4d0](https://github.com/user-attachments/assets/e2a67bad-7d10-46e4-8d23-9866918ef04b)
 
 **For Pads(15)**, then $GCD(15,8) == 1$, **COPRIME!!!**
 
-![image](https://github.com/user-attachments/assets/accd3992-a56e-4059-a472-39ba5ad75660)
+![348794204-accd3992-a56e-4059-a472-39ba5ad75660](https://github.com/user-attachments/assets/a6fd2cb8-7517-4627-8fd6-0cf29711b09d)
+
 
 As you can tell the difference from the **[Chi square distribution](https://en.wikipedia.org/wiki/Chi-squared_distribution)**, randomness has been enhanced by setting to numbers that are coprimes to 8.
 
