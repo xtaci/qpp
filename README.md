@@ -64,7 +64,7 @@ func main() {
 }
 ```
 
-The NewQPP generates permutations like(in cycle notation):
+The NewQPP generates permutations like(in [cycle notation](https://en.wikipedia.org/wiki/Permutation#Cycle_notation)):
 ```
 (0 4 60 108 242 196)(1 168 138 16 197 29 57 21 22 169 37 74 205 33 56 5 10 124 12 40 8 70 18 6 185 137 224)
 (2 64 216 178 88)
@@ -106,7 +106,7 @@ In modern CPUs, the latest QPP optimization can easily achieve speeds exceeding 
 
 ## Security consideration in setting PADs
 
-The number of pads should ideally be coprime with 8, as the results indicate a hidden structure in the PRNG related to the number 8.
+The number of pads should ideally be coprime with 8（與8互素), as the results indicate a hidden structure in the PRNG related to the number 8.
 
 ![88d8de919445147f5d44ee059cca371](https://github.com/user-attachments/assets/9e1a160d-5433-4e24-9782-2ae88d87453d)
 
