@@ -111,6 +111,8 @@ We demonstrate encrypting the Bible with 64 pads and 15 pads below with real dat
 
 ![348794204-accd3992-a56e-4059-a472-39ba5ad75660](https://github.com/user-attachments/assets/a6fd2cb8-7517-4627-8fd6-0cf29711b09d)
 
+> Click here to learn more about the chi-square results for pad count selection: https://github.com/xtaci/qpp/blob/main/misc/chi-square.csv
+
 
 As you can tell the difference from the **[Chi square distribution](https://en.wikipedia.org/wiki/Chi-squared_distribution)**, randomness has been enhanced by setting to numbers that are coprimes to 8.
 
