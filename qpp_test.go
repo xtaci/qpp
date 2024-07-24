@@ -204,21 +204,7 @@ func TestEncryptionChiSquare(t *testing.T) {
 	}
 	defer f.Close()
 
-	// write header to csv
-	f.WriteString("pads,chi-square\n")
-
-	// test chi-square for 1 to 255 pads, and output the result to a CSV file
-	for i := 1; i < 256; i++ {
-		chi := testChiSquare(t, uint16(i))
-		f.WriteString(fmt.Sprintf("%d,%f\n", i, chi))
-	}
-}
-
-func testChiSquare(t *testing.T, pads uint16) float64 {
-	seed := make([]byte, 32)
-	io.ReadFull(rand.Reader, seed)
-
-	sender := NewQPP(seed, pads)
+	// 1 MB structured data
 	original := make([]byte, 1024*1024)
 	msg := original
 
@@ -228,9 +214,36 @@ func testChiSquare(t *testing.T, pads uint16) float64 {
 		msg = msg[n:]
 	}
 
-	msg = original
-	sender.Encrypt(msg)
+	t.Logf("Orignal text Chi-squared, %f:", chiSquare(original))
+	// write header to csv
+	f.WriteString("pads,chi-square\n")
 
+	// test chi-square for 1 to 255 pads, and output the result to a CSV file
+	for i := 1; i < 256; i++ {
+		chi := testChiSquare(t, original, uint16(i))
+		f.WriteString(fmt.Sprintf("%d,%f\n", i, chi))
+	}
+
+	t.Log("chi-squared output to chi-square.csv")
+}
+
+func testChiSquare(t *testing.T, plaintext []byte, pads uint16) float64 {
+	seed := make([]byte, 32)
+	io.ReadFull(rand.Reader, seed)
+	sender := NewQPP(seed, pads)
+
+	// make a copy of plaintext
+	msg := make([]byte, len(plaintext))
+	copy(msg, plaintext)
+
+	// encrypt and calc
+	sender.Encrypt(msg)
+	chi := chiSquare(msg)
+	return chi
+}
+
+// a function to calculate the chi-square value
+func chiSquare(msg []byte) float64 {
 	// chi-square test
 	// 1. calculate frequency
 	freq := make([]int, 256)
@@ -244,7 +257,6 @@ func testChiSquare(t *testing.T, pads uint16) float64 {
 	for _, f := range freq {
 		chi += (float64(f) - expected) * (float64(f) - expected) / expected
 	}
-	t.Log("pads:", pads, "chi-square:", chi)
 	return chi
 
 }
