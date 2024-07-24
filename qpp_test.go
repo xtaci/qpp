@@ -2,7 +2,9 @@ package qpp
 
 import (
 	"crypto/rand"
+	"fmt"
 	"io"
+	"os"
 	"testing"
 
 	mathrand "math/rand"
@@ -195,12 +197,24 @@ func TestEncryption3(t *testing.T) {
 
 // This function test chi-square test for randomness with differnt number of pads by calling testChiSquare
 func TestEncryptionChiSquare(t *testing.T) {
+	// open a temporary csv file
+	f, err := os.Create("chi-square.csv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	// write header to csv
+	f.WriteString("pads,chi-square\n")
+
+	// test chi-square for 1 to 255 pads, and output the result to a CSV file
 	for i := 1; i < 256; i++ {
-		testChiSquare(t, uint16(i))
+		chi := testChiSquare(t, uint16(i))
+		f.WriteString(fmt.Sprintf("%d,%f\n", i, chi))
 	}
 }
 
-func testChiSquare(t *testing.T, pads uint16) {
+func testChiSquare(t *testing.T, pads uint16) float64 {
 	seed := make([]byte, 32)
 	io.ReadFull(rand.Reader, seed)
 
@@ -231,6 +245,7 @@ func testChiSquare(t *testing.T, pads uint16) {
 		chi += (float64(f) - expected) * (float64(f) - expected) / expected
 	}
 	t.Log("pads:", pads, "chi-square:", chi)
+	return chi
 
 }
 
