@@ -1,17 +1,18 @@
-// Package qpp implements Quantum permutation pad
+// # Copyright (c) 2024 xtaci
 //
-// Quantum permutation pad or QPP is a quantum-safe symmetric cryptographic
-// algorithm proposed by Kuang and Bettenburg in 2020. The theoretical
-// foundation of QPP leverages the linear algebraic representations of
-// quantum gates which makes QPP realizable in both, quantum and classical
-// systems. By applying the QPP with 64 of 8-bit permutation gates, holding
-// respective entropy of over 100,000 bits, they accomplished quantum random
-// number distributions digitally over today’s classical internet. The QPP has
-// also been used to create pseudo quantum random numbers and served as a
-// foundation for quantum-safe lightweight block and streaming ciphers.
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 //
-// This file implements QPP in 8-qubits, which is compatible with the classical
-// architecture. In 8-qubits, the overall permutation matrix reaches 256!.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 package qpp
 
 import (
