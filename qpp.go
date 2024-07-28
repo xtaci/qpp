@@ -46,9 +46,9 @@ const (
 
 // Rand is a stateful random number generator
 type Rand struct {
-	xoshiro [4]uint64
-	seed64  uint64
-	count   uint8
+	xoshiro [4]uint64 // xoshiro state
+	seed64  uint64    // the latest random number
+	count   uint8     // number of bytes encrypted, counted in modular arithmetic
 }
 
 // QuantumPermutationPad represents the encryption/decryption structure using quantum permutation pads
@@ -168,7 +168,7 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 		data = data[offset:] // aligned bytes start from here
 	}
 
-	// handle 8-bytes aligned
+	// handle 8-bytes aligned, loop unrolling to improve performance(to mitigate data-dependency)
 	repeat := len(data) / 8
 	for i := 0; i < repeat; i++ {
 		d := data[i*8 : i*8+8]
@@ -304,8 +304,9 @@ func QPPMinimumPads(qubits uint8) int {
 // fill initializes the pad with sequential byte values
 // This sets up a standard permutation matrix before it is shuffled
 func fill(pad []byte) {
-	for i := 0; i < len(pad); i++ {
-		pad[i] = byte(i)
+	pad[0] = 0
+	for i := 1; i < len(pad); i++ {
+		pad[i] = pad[i-1] + 1
 	}
 }
 
