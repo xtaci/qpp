@@ -1,5 +1,4 @@
 # Quantum Permutation Pad
-![346540972-7a05cc4b-b207-437e-a015-57918906b738](https://github.com/user-attachments/assets/ad8ba0f1-86fa-4de8-9bbd-5fe860c40ff1)
 
 [![GoDoc][1]][2] [![Go Report Card][3]][4] [![CreatedAt][5]][6] 
 
