@@ -39,7 +39,6 @@ const (
 	PBKDF2_LOOPS           = 128 // Number of iterations for PBKDF2
 	CHUNK_DERIVE_SALT      = "___QUANTUM_PERMUTATION_PAD_SEED_DERIVE___"
 	CHUNK_DERIVE_LOOPS     = 1024
-	MAGIC                  = 0x1A2B3C4D5E6F7890
 	PAD_SWITCH             = 8 // switch pad for every PAD_SWITCH bytes
 	QUBITS                 = 8 // number of quantum bits of this implementation
 )
