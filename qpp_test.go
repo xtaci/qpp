@@ -320,11 +320,11 @@ func TestEncryptionMixedPRNG(t *testing.T) {
 	msg := make([]byte, len(original))
 	copy(msg, original)
 
-	rand_enc := qpp.CreatePRNG(seed)
+	rand_enc := CreatePRNG(seed)
 	qpp.EncryptWithPRNG(msg, rand_enc)
 	assert.NotEqual(t, original, msg, "not encrypted")
 
-	rand_dec := qpp.CreatePRNG(seed)
+	rand_dec := CreatePRNG(seed)
 	qpp.DecryptWithPRNG(msg, rand_dec)
 	assert.Equal(t, original, msg, "not equal")
 }
@@ -380,5 +380,20 @@ func BenchmarkRandV2(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		//println(encRand.Uint32())
 		_ = encRand.Uint32()
+	}
+}
+
+func BenchmarkCreatePRNG(b *testing.B) {
+	seed := make([]byte, 32)
+	io.ReadFull(rand.Reader, seed)
+	for i := 0; i < b.N; i++ {
+		_ = CreatePRNG(seed)
+	}
+}
+func BenchmarkFastPRNG(b *testing.B) {
+	seed := make([]byte, 32)
+	io.ReadFull(rand.Reader, seed)
+	for i := 0; i < b.N; i++ {
+		_ = FastPRNG(seed)
 	}
 }

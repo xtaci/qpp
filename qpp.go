@@ -98,8 +98,8 @@ func NewQPP(seed []byte, numPads uint16) *QuantumPermutationPad {
 		reverse(pad, rpad)
 	}
 
-	qpp.encRand = qpp.CreatePRNG(seed) // Create default PRNG for encryption
-	qpp.decRand = qpp.CreatePRNG(seed) // Create default PRNG for decryption
+	qpp.encRand = CreatePRNG(seed) // Create default PRNG for encryption
+	qpp.decRand = CreatePRNG(seed) // Create default PRNG for decryption
 
 	return qpp
 }
@@ -118,7 +118,7 @@ func (qpp *QuantumPermutationPad) Decrypt(data []byte) {
 
 // CreatePRNG creates a deterministic pseudo-random number generator based on the provided seed
 // It uses HMAC and PBKDF2 to derive a random seed for the PRNG
-func (qpp *QuantumPermutationPad) CreatePRNG(seed []byte) *Rand {
+func CreatePRNG(seed []byte) *Rand {
 	mac := hmac.New(sha256.New, seed)
 	mac.Write([]byte(PM_SELECTOR_IDENTIFIER))
 	sum := mac.Sum(nil)
@@ -131,6 +131,21 @@ func (qpp *QuantumPermutationPad) CreatePRNG(seed []byte) *Rand {
 	rd.xoshiro[1] = binary.LittleEndian.Uint64(xoshiro[8:16])
 	rd.xoshiro[2] = binary.LittleEndian.Uint64(xoshiro[16:24])
 	rd.xoshiro[3] = binary.LittleEndian.Uint64(xoshiro[24:32])
+	rd.seed64 = xoshiro256ss(&rd.xoshiro)
+	return rd
+}
+
+// FastPRNG creates a deterministic pseudo-random number generator based on the provided seed
+func FastPRNG(seed []byte) *Rand {
+	sha := sha256.New()
+	sum := sha.Sum(seed)
+
+	// Create and return PRNG
+	rd := &Rand{}
+	rd.xoshiro[0] = binary.LittleEndian.Uint64(sum[0:8])
+	rd.xoshiro[1] = binary.LittleEndian.Uint64(sum[8:16])
+	rd.xoshiro[2] = binary.LittleEndian.Uint64(sum[16:24])
+	rd.xoshiro[3] = binary.LittleEndian.Uint64(sum[24:32])
 	rd.seed64 = xoshiro256ss(&rd.xoshiro)
 	return rd
 }
