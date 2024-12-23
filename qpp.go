@@ -135,7 +135,8 @@ func CreatePRNG(seed []byte) *Rand {
 	return rd
 }
 
-// FastPRNG creates a deterministic pseudo-random number generator based on the provided seed
+// FastPRNG creates a deterministic pseudo-random number generator based on the provided seed, but with a faster initialization,
+// it's suitable for the cases where the seed have sufficient randomness.
 func FastPRNG(seed []byte) *Rand {
 	sha := sha256.New()
 	sum := sha.Sum(seed)
