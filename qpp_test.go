@@ -213,7 +213,8 @@ func TestEncryption3(t *testing.T) {
 // This function test chi-square test for randomness with differnt number of pads by calling testChiSquare
 func TestEncryptionChiSquare(t *testing.T) {
 	// open a temporary csv file
-	f, err := os.Create("chi-square.csv")
+	tempDir := t.TempDir()
+	f, err := os.CreateTemp(tempDir, "chi-square-*.csv")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -239,7 +240,7 @@ func TestEncryptionChiSquare(t *testing.T) {
 		f.WriteString(fmt.Sprintf("%d,%f\n", i, chi))
 	}
 
-	t.Log("chi-squared output to chi-square.csv")
+	t.Logf("chi-squared output written to %s", f.Name())
 }
 
 func testChiSquare(t *testing.T, plaintext []byte, pads uint16) float64 {
