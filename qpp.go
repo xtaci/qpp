@@ -93,7 +93,7 @@ func NewQPP(seed []byte, numPads uint16) *QuantumPermutationPad {
 		// Fill pad with sequential byte values
 		fill(pad)
 		// Shuffle pad to create a unique permutation matrix
-		shuffle(chunks[i%len(chunks)], QUBITS, pad, uint16(i), blocks)
+		shuffle(chunks[i%len(chunks)], pad, uint16(i), blocks)
 		// Create the reverse permutation matrix for decryption
 		reverse(pad, rpad)
 	}
@@ -370,7 +370,7 @@ func seedToChunks(seed []byte, qubits uint8) [][]byte {
 
 // shuffle shuffles the pad based on the seed and pad identifier to create a permutation matrix
 // It uses HMAC and PBKDF2 to derive a unique shuffle pattern from the seed and pad ID
-func shuffle(chunk []byte, qubits uint8, pad []byte, padID uint16, blocks []cipher.Block) {
+func shuffle(chunk []byte, pad []byte, padID uint16, blocks []cipher.Block) {
 	// use selected chunk based on pad ID to hmac the PAD_IDENTIFIER
 	message := fmt.Sprintf(PAD_IDENTIFIER, padID)
 	mac := hmac.New(sha256.New, chunk)
