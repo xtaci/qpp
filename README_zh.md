@@ -81,7 +81,7 @@ NewQPP 生成的置换如下所示（采用[轮换表示法](https://zh.wikipedi
 8 量子比特系统中的置换矩阵数量由提供的种子决定并随机选择。
 <img width="867" alt="image" src="https://github.com/user-attachments/assets/93ce8634-5300-47b1-ba1b-e46d9b46b432">
 
-置换 pad 可以用[轮换表示法](https://zh.wikipedia.org/wiki/%E7%BD%AE%E6%8D%A2#%E8%BD%AE%E6%8D%A2%E8%A1%A8%E7%A4%BA%E6%B3%95)写为：$\sigma =(1\ 2\ 255)(3\ 36)(4\ 82\ 125)(....)$，其中的元素不像其他[流密码](https://zh.wikipedia.org/wiki/%E6%B5%81%E5%AF%86%E7%A0%81)那样可以通过两次 **异或 (XOR)** 来还原。
+置换 pad 可以用[轮换表示法](https://zh.wikipedia.org/wiki/%E7%BD%AE%E6%8D%A2#%E8%BD%AE%E6%8D%A2%E8%A1%A8%E7%A4%BA%E6%B3%95)写为： $\sigma =(1\ 2\ 255)(3\ 36)(4\ 82\ 125)(....)$ ，其中的元素不像其他[流密码](https://zh.wikipedia.org/wiki/%E6%B5%81%E5%AF%86%E7%A0%81)那样可以通过两次 **异或 (XOR)** 来还原。
 
 #### 局部性与随机性
 随机置换会破坏[局部性原理](https://zh.wikipedia.org/wiki/%E5%B1%80%E9%83%A8%E6%80%A7%E5%8E%9F%E7%90%86)，而这对性能至关重要。为了获得更高的加密速度，必须保持一定程度的局部性。在本设计中，我们不是每个字节都切换 pad，而是每 8 个字节使用一个新的随机 pad。
