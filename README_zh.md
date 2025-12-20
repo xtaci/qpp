@@ -1,4 +1,4 @@
-# Quantum Permutation Pad (量子置换一次一密)
+# Quantum Permutation Pad (量子置换密码本)
 
 [![GoDoc][1]][2] [![Go Report Card][3]][4] [![CreatedAt][5]][6] 
 
