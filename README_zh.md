@@ -79,7 +79,8 @@ func main() {
 ## 本实现的安全性设计
 整体安全性可视为 **1683 位** 对称加密强度。
 
-8 量子比特系统中的置换矩阵由种子驱动随机挑选，天然具备巨大熵值。
+在 8 位量子比特系统中，置换矩阵的数量取决于所提供的随机种子，并经随机程序选定。
+
 <img width="867" alt="image" src="https://github.com/user-attachments/assets/93ce8634-5300-47b1-ba1b-e46d9b46b432">
 
 置换密码本（pad）可以用[轮换表示法](https://zh.wikipedia.org/wiki/%E7%BD%AE%E6%8D%A2#%E8%BD%AE%E6%8D%A2%E8%A1%A8%E7%A4%BA%E6%B3%95)写为： $\sigma =(1\ 2\ 255)(3\ 36)(4\ 82\ 125)(...)$，其中置换元素无法像传统[流密码](https://zh.wikipedia.org/wiki/%E6%B5%81%E5%AF%86%E7%A0%81)那样通过两次 **异或 (XOR)** 还原，大幅提升分析难度。
