@@ -81,7 +81,10 @@ func NewQPP(seed []byte, numPads uint16) *QuantumPermutationPad {
 	var blocks []cipher.Block
 	for _, chunk := range chunks {
 		aeskey := pbkdf2.Key(chunk, []byte(SHUFFLE_SALT), PBKDF2_LOOPS, 32, sha1.New)
-		block, _ := aes.NewCipher(aeskey)
+		block, err := aes.NewCipher(aeskey)
+		if err != nil {
+			panic(fmt.Sprintf("NewQPP: failed to create AES cipher block: %v", err))
+		}
 		blocks = append(blocks, block)
 	}
 
