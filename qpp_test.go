@@ -144,7 +144,7 @@ func TestPads(t *testing.T) {
 		pad := qpp.pads[i*matrixBytes : (i+1)*matrixBytes]
 		rpad := qpp.rpads[i*matrixBytes : (i+1)*matrixBytes]
 
-		for j := 0; j < matrixBytes; j++ {
+		for j := range matrixBytes {
 			assert.Equal(t, rpad[pad[j]], byte(j), "not reservable")
 		}
 	}
