@@ -390,7 +390,9 @@ func shuffle(chunk []byte, pad []byte, padID uint16, blocks []cipher.Block) {
 		// use all the entropy from the seed to generate a random number
 		for j := 0; j < len(blocks); j++ {
 			block := blocks[j%len(blocks)]
-			block.Encrypt(sum, sum)
+			for off := 0; off < len(sum); off += aes.BlockSize {
+				block.Encrypt(sum[off:off+aes.BlockSize], sum[off:off+aes.BlockSize])
+			}
 		}
 		bigrand := new(big.Int).SetBytes(sum)
 
