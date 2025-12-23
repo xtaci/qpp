@@ -238,6 +238,7 @@ func TestEncryptionChiSquare(t *testing.T) {
 	for i := 1; i < 256; i++ {
 		chi := testChiSquare(t, original, uint16(i))
 		f.WriteString(fmt.Sprintf("%d,%f\n", i, chi))
+		t.Logf("Pads: %d, Chi-squared: %f", i, chi)
 	}
 
 	t.Logf("chi-squared output written to %s", f.Name())
