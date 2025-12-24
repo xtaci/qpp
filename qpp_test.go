@@ -238,10 +238,18 @@ func TestEncryptionChiSquare(t *testing.T) {
 	for i := 1; i < 256; i++ {
 		chi := testChiSquare(t, original, uint16(i))
 		f.WriteString(fmt.Sprintf("%d,%f\n", i, chi))
-		t.Logf("Pads: %d, Chi-squared: %f", i, chi)
 	}
 
 	t.Logf("chi-squared output written to %s", f.Name())
+
+	// Read and output the entire file content
+	f.Close() // Close the file first to ensure all content is written
+	data, err := os.ReadFile(f.Name())
+	if err != nil {
+		t.Fatalf("failed to read chi-square file: %v", err)
+	}
+	t.Logf("\n==== chi-square file content ====")
+	t.Logf("%s", data)
 }
 
 func testChiSquare(t *testing.T, plaintext []byte, pads uint16) float64 {
