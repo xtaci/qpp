@@ -193,7 +193,8 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 			// switch to another pad when count reaches PAD_SWITCH
 			if count == PAD_SWITCH {
 				// inline xoshiro256**
-				r = ((s1 * 5 << 7) | (s1 * 5 >> 57)) * 9
+				s1x5 := s1 * 5
+				r = ((s1x5 << 7) | (s1x5 >> 57)) * 9
 				t := s1 << 17
 				s2 ^= s0
 				s3 ^= s1
@@ -237,7 +238,8 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 		d[7] = *(*byte)(unsafe.Add(base, x7))
 
 		// inline xoshiro256** for next 8 bytes
-		r = ((s1 * 5 << 7) | (s1 * 5 >> 57)) * 9
+		s1x5 := s1 * 5
+		r = ((s1x5 << 7) | (s1x5 >> 57)) * 9
 		t := s1 << 17
 		s2 ^= s0
 		s3 ^= s1
@@ -267,7 +269,8 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 		d[15] = *(*byte)(unsafe.Add(base, x7))
 
 		// inline xoshiro256** for next iteration
-		r = ((s1 * 5 << 7) | (s1 * 5 >> 57)) * 9
+		s1x5 = s1 * 5
+		r = ((s1x5 << 7) | (s1x5 >> 57)) * 9
 		t = s1 << 17
 		s2 ^= s0
 		s3 ^= s1
@@ -302,7 +305,8 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 		d[6] = *(*byte)(unsafe.Add(base, x6))
 		d[7] = *(*byte)(unsafe.Add(base, x7))
 
-		r = ((s1 * 5 << 7) | (s1 * 5 >> 57)) * 9
+		s1x5 := s1 * 5
+		r = ((s1x5 << 7) | (s1x5 >> 57)) * 9
 		t := s1 << 17
 		s2 ^= s0
 		s3 ^= s1
@@ -356,7 +360,8 @@ func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *Rand) {
 
 			if count == PAD_SWITCH {
 				// inline xoshiro256**
-				r = ((s1 * 5 << 7) | (s1 * 5 >> 57)) * 9
+				s1x5 := s1 * 5
+				r = ((s1x5 << 7) | (s1x5 >> 57)) * 9
 				t := s1 << 17
 				s2 ^= s0
 				s3 ^= s1
@@ -396,7 +401,8 @@ func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *Rand) {
 		d[7] = *(*byte)(unsafe.Add(base, uintptr(d[7]))) ^ rr7
 
 		// inline xoshiro256** for next 8 bytes
-		r = ((s1 * 5 << 7) | (s1 * 5 >> 57)) * 9
+		s1x5 := s1 * 5
+		r = ((s1x5 << 7) | (s1x5 >> 57)) * 9
 		t := s1 << 17
 		s2 ^= s0
 		s3 ^= s1
@@ -422,7 +428,8 @@ func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *Rand) {
 		d[15] = *(*byte)(unsafe.Add(base, uintptr(d[15]))) ^ rr7
 
 		// inline xoshiro256** for next iteration
-		r = ((s1 * 5 << 7) | (s1 * 5 >> 57)) * 9
+		s1x5 = s1 * 5
+		r = ((s1x5 << 7) | (s1x5 >> 57)) * 9
 		t = s1 << 17
 		s2 ^= s0
 		s3 ^= s1
@@ -453,7 +460,8 @@ func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *Rand) {
 		d[6] = *(*byte)(unsafe.Add(base, uintptr(d[6]))) ^ rr6
 		d[7] = *(*byte)(unsafe.Add(base, uintptr(d[7]))) ^ rr7
 
-		r = ((s1 * 5 << 7) | (s1 * 5 >> 57)) * 9
+		s1x5 := s1 * 5
+		r = ((s1x5 << 7) | (s1x5 >> 57)) * 9
 		t := s1 << 17
 		s2 ^= s0
 		s3 ^= s1
