@@ -214,7 +214,7 @@ func (qpp *QuantumPermutationPad) EncryptWithPRNG(data []byte, rand *Rand) {
 
 	// handle 8-byte aligned blocks with 2x unrolling for better ILP
 	repeat := len(data) >> 4 // process 16 bytes at a time
-	for i := 0; i < repeat; i++ {
+	for i := range repeat {
 		d := data[i<<4:]
 		_ = d[15] // bounds check elimination
 
@@ -381,7 +381,7 @@ func (qpp *QuantumPermutationPad) DecryptWithPRNG(data []byte, rand *Rand) {
 
 	// handle 8-byte aligned blocks with 2x unrolling for better ILP
 	repeat := len(data) >> 4 // process 16 bytes at a time
-	for i := 0; i < repeat; i++ {
+	for i := range repeat {
 		d := data[i<<4:]
 		_ = d[15] // bounds check elimination
 
