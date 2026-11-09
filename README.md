@@ -1,13 +1,11 @@
 # Quantum Permutation Pad
 
-[![GoDoc][1]][2] [![Go Report Card][3]][4] [![CreatedAt][5]][6] 
+[![GoDoc][1]][2] [![CreatedAt][5]][6] 
 
 [中文说明](README_zh.md)
 
 [1]: https://godoc.org/github.com/xtaci/qpp?status.svg
 [2]: https://pkg.go.dev/github.com/xtaci/qpp
-[3]: https://goreportcard.com/badge/github.com/xtaci/qpp
-[4]: https://goreportcard.com/report/github.com/xtaci/qpp
 [5]: https://img.shields.io/github/created-at/xtaci/qpp
 [6]: https://img.shields.io/github/created-at/xtaci/qpp
 
